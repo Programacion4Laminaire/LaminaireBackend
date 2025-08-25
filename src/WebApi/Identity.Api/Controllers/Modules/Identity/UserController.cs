@@ -12,7 +12,7 @@ using SharedKernel.Abstractions.Messaging;
 using SharedKernel.Dtos.Commons;
 
 namespace Identity.Api.Controllers.Modules.Identity;
-[Authorize]
+//[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class UserController(IDispatcher dispatcher) : ControllerBase

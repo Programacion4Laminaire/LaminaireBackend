@@ -1,8 +1,11 @@
 ﻿using Engineering.Application.Dtos.Products;
 using Engineering.Application.UseCases.Products.Queries.GetByCodeQuery;
+
+using Engineering.Application.UseCases.Products.Queries.GetSelectQuery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Abstractions.Messaging;
+using SharedKernel.Dtos.Commons;
 
 namespace Engineering.Api.Controllers.Modules.Engineering;
 
@@ -26,4 +29,17 @@ public class ProductController(IDispatcher dispatcher) : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpGet("Select")]
+    public async Task<IActionResult> GetSelect([FromQuery] string? searchTerm, CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.Dispatch<GetProductSelectQuery, IEnumerable<SelectResponseDto>>(
+            new GetProductSelectQuery(searchTerm),
+            cancellationToken
+        );
+        return Ok(result);
+    }
+
+
+
 }

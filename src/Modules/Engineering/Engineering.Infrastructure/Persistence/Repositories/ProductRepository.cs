@@ -2,6 +2,7 @@
 using Engineering.Application.Dtos.Products;
 using Engineering.Application.Interfaces.Persistence;
 using Engineering.Infrastructure.Persistence.Context;
+using SharedKernel.Dtos.Commons;
 
 namespace Engineering.Infrastructure.Persistence.Repositories;
 
@@ -47,4 +48,21 @@ WHERE M.CODIGO = @Code;
         using var connection = _context.CreateConnection;
         return await connection.QueryFirstOrDefaultAsync<ProductPriceResponseDto>(sql, new { Code = code });
     }
+    public async Task<IEnumerable<SelectResponseDto>> GetProductSelectAsync(string? searchTerm)
+    {
+        var sql = @"
+        SELECT TOP 20
+            LTRIM(RTRIM(CODIGO)) AS Code,
+            LTRIM(RTRIM(DESCRIPCIO)) AS Description
+        FROM CILAMINAIRE..MTMERCIA
+        WHERE (@SearchTerm IS NULL 
+               OR CODIGO LIKE '%' + @SearchTerm + '%' 
+               OR DESCRIPCIO LIKE '%' + @SearchTerm + '%')
+        ORDER BY DESCRIPCIO;";
+
+        using var connection = _context.CreateConnection;
+        return await connection.QueryAsync<SelectResponseDto>(sql, new { SearchTerm = searchTerm });
+    }
+
+
 }
