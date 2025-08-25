@@ -9,7 +9,7 @@ namespace Engineering.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplicationEngineering(this IServiceCollection services)
     {
         TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());

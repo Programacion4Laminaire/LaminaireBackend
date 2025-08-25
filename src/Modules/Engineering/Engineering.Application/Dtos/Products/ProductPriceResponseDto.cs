@@ -1,19 +1,17 @@
-﻿
+﻿namespace Engineering.Application.Dtos.Products;
 
-namespace Engineering.Application.Dtos.Products;
-
-public class ProductPriceResponseDto
+public record ProductPriceResponseDto
 {
-    public string? Code { get; set; }
-    public string? ProductName { get; set; }
-    public string? SublineCode { get; set; }
-    public string?   SublineName { get; set; }
-    public decimal Cost { get; set; }
-    public decimal ExchangeRate { get; set; }
-    public decimal Margin { get; set; }
-    public decimal SalePriceCop { get; set; }
-    public decimal SalePriceUsd { get; set; }
-    public decimal Multiplier { get; set; }
-    public decimal DistributorMultiplier { get; set; }
-    public decimal BasePriceUsd { get; set; }
+    public string? Code { get; init; }
+    public string? ProductName { get; init; }
+    public string? SublineCode { get; init; }
+    public string? SublineName { get; init; }
+    public decimal Cost { get; init; }
+    public decimal ExchangeRate { get; init; }
+    public decimal Margin { get; init; }
+    public decimal SalePriceCop { get; init; }
+    public decimal SalePriceUsd { get; init; }
+    public decimal Multiplier { get; init; }
+    public decimal DistributorMultiplier { get; init; }
+    public decimal BasePriceUsd { get; init; }
 }

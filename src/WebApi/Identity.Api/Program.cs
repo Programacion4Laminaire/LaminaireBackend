@@ -1,15 +1,18 @@
+using Engineering.Infrastructure;
 using Identity.Api.Authentication;
 using Identity.Api.Middleware;
 using Identity.Application;
 using Identity.Infrastructure;
 using System.Text.Json.Serialization;
-
+using Engineering.Application;
 var builder = WebApplication.CreateBuilder(args);
 var Cors = "Cors";
 // Add services to the container.
 builder.Services
     .AddInfrastructureIdentity(builder.Configuration)
     .AddApplicationIdentity()
+    .AddInfrastructureEngineering(builder.Configuration)
+    .AddApplicationEngineering()
     .AddAuthentication(builder.Configuration);
 
 builder.Services

@@ -4,14 +4,12 @@ using Identity.Application.UseCases.UserRoles.Commands.DeleteCommand;
 using Identity.Application.UseCases.UserRoles.Commands.UpdateCommand;
 using Identity.Application.UseCases.UserRoles.Queries.GetAllQuery;
 using Identity.Application.UseCases.UserRoles.Queries.GetByIdQuery;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Abstractions.Messaging;
 
 namespace Identity.Api.Controllers.Modules.Identity;
 
-[Authorize]
+//[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class UserRoleController(IDispatcher dispatcher) : ControllerBase
