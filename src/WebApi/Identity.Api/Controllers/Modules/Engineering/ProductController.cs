@@ -1,13 +1,15 @@
 ﻿using Engineering.Application.Dtos.Products;
+using Engineering.Application.UseCases.Products.Commands.UpdateCommand;
 using Engineering.Application.UseCases.Products.Queries.GetByCodeQuery;
 
 using Engineering.Application.UseCases.Products.Queries.GetSelectQuery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Abstractions.Messaging;
+using SharedKernel.Commons.Bases;
 using SharedKernel.Dtos.Commons;
 
-namespace Engineering.Api.Controllers.Modules.Engineering;
+namespace Identity.Api.Controllers.Modules.Engineering;
 
 //[Authorize]
 [Route("api/[controller]")]
@@ -40,6 +42,12 @@ public class ProductController(IDispatcher dispatcher) : ControllerBase
         return Ok(result);
     }
 
+    [HttpPut("Update")]
+    public async Task<IActionResult> Update([FromBody] UpdateProductCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.Dispatch<UpdateProductCommand, bool>(command, cancellationToken);
+        return Ok(result);
+    }
 
 
 }

@@ -12,7 +12,7 @@ public class UserRoleMapping : IRegister
     {
         config.NewConfig<UserRole, UserRoleResponseDto>()
           .Map(dest => dest.UserRoleId, src => src.Id)
-          .Map(dest => dest.User, src => src.User.UserName)
+          .Map(dest => dest.UserName, src => src.User.UserName)
           .Map(dest => dest.User, src => src.User.FirstName + " " + src.User.LastName)
           .Map(dest => dest.Role, src => src.Role.Name)
           .Map(dest => dest.StateDescription, src => src.State == "1" ? "Activo" : "Inactivo")

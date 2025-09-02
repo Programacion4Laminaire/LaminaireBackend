@@ -17,3 +17,4 @@ public class LaminaireDbContext
 
     public IDbConnection CreateConnection => new SqlConnection(_connectionString);
 }
+

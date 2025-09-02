@@ -8,10 +8,10 @@ public record ProductPriceResponseDto
     public string? SublineName { get; init; }
     public decimal Cost { get; init; }
     public decimal ExchangeRate { get; init; }
-    public decimal Margin { get; init; }
+    public decimal Margin { get; init; }   // ahora viene de BD o request
     public decimal SalePriceCop { get; init; }
     public decimal SalePriceUsd { get; init; }
     public decimal Multiplier { get; init; }
     public decimal DistributorMultiplier { get; init; }
-    public decimal BasePriceUsd { get; init; }
+    public decimal? BasePriceUsd { get; init; }
 }

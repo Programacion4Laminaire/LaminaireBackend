@@ -29,18 +29,6 @@ public class UserRepository(ApplicationDbContext context) : GenericRepository<Us
             return null!;
         }
 
-        var menus = await (from mr in _context.MenuRoles
-                           join m in _context.Menus on mr.MenuId equals m.Id
-                           where mr.RoleId == userWithRoles.Role.Id
-                           select new MenuDto
-                           {
-                               MenuId = m.Id,
-                               Name = m.Name,
-                               Icon = m.Icon,
-                               Url = m.Url,
-                               FatherId = m.FatherId
-                           }).ToListAsync();
-
         var permissions = await (from rp in _context.RolePermissions
                                  join p in _context.Permissions on rp.PermissionId equals p.Id
                                  join m in _context.Menus on p.MenuId equals m.Id
@@ -51,28 +39,23 @@ public class UserRepository(ApplicationDbContext context) : GenericRepository<Us
                                      Name = p.Name,
                                      Description = p.Description,
                                      Slug = p.Slug,
-                                     //Menu = new MenuDto
-                                     //{
-                                     //    MenuId = m.Id,
-                                     //    Name = m.Name,
-                                     //    Icon = m.Icon,
-                                     //    Url = m.Url,
-                                     //    FatherId = m.FatherId
-                                     //}
                                  }).ToListAsync();
 
         return new UserWithRoleAndPermissionsDto
         {
             UserId = userWithRoles.User.Id,
+            Identification = userWithRoles.User.Identification,
+            BirthDate = userWithRoles.User.BirthDate,
             FirstName = userWithRoles.User.FirstName,
             LastName = userWithRoles.User.LastName,
+            UserName = userWithRoles.User.UserName,
             Email = userWithRoles.User.Email,
+            ProfileImagePath = userWithRoles.User.ProfileImagePath, // 👈 agregado
             Role = new RoleDto
             {
                 RoleId = userWithRoles.Role.Id,
                 Name = userWithRoles.Role.Name,
                 Description = userWithRoles.Role.Description,
-                //Menus = menus,
                 Permissions = permissions
             }
         };
