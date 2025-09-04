@@ -14,7 +14,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructureEngineering(this IServiceCollection services, ConfigurationManager configuration)
     {
         // Registro del DbContext para Dapper
-        services.AddSingleton<LaminaireDbContext>();
+        services.AddSingleton<EngineeringDbContext>();
 
         // Registro automático de repositorios (igual que en Identity)
         var infraAsm = Assembly.GetExecutingAssembly();

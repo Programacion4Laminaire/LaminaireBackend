@@ -16,8 +16,21 @@ public class AuthController(IDispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginQuery request)
     {
         var response = await _dispatcher.Dispatch<LoginQuery, string>(request, CancellationToken.None);
+
+        if ((response.IsSuccess != null && response.IsSuccess == true) && !string.IsNullOrEmpty(response.CookieDatos))
+        {
+            Response.Cookies.Append("Datos", response.CookieDatos, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(8)
+            });
+        }
+
         return Ok(response);
     }
+
 
     [HttpPost("LoginRefreshToken")]
     public async Task<IActionResult> LoginRefreshToken([FromBody] LoginRefreshTokenCommand request)

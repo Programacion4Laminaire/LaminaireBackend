@@ -18,14 +18,19 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureIdentity(this IServiceCollection services, ConfigurationManager configuration)
     {
+        // DbContext Dapper
+        services.AddScoped<LaminaireDbContext>();
+
         var assembly = typeof(ApplicationDbContext).Assembly.FullName;
 
         services.AddDbContext<ApplicationDbContext>(
             options => options
-            .UseSqlServer(configuration.GetConnectionString("IdentityConnection"), b => b.MigrationsAssembly(assembly)));
+                .UseSqlServer(configuration.GetConnectionString("IdentityConnection"),
+                              b => b.MigrationsAssembly(assembly)));
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+        // Registro automático de repositorios EF
         var infraAsm = Assembly.GetExecutingAssembly();
         foreach (var impl in infraAsm.GetTypes()
                      .Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Repository")))
@@ -36,9 +41,13 @@ public static class DependencyInjection
                 services.AddScoped(@interface, impl);
         }
 
+        // Repositorios/Servicios Dapper
+        services.AddScoped<ILaminaireUserRepository, UserCoockiesRepository>();
+        services.AddScoped<IUserCookieService, UserCookieService>();
+
+        // Infraestructura base
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IOrderingQuery, OrderingQuery>();
-
         services.AddScoped<IFileStorageService, FileStorageService>();
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));

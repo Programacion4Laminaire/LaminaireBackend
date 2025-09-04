@@ -7,4 +7,6 @@ public class Menu : BaseEntity
     public string? Icon { get; init; }
     public string? Url { get; init; }
     public int? FatherId { get; init; }
+
+    public ICollection<Permission> Permissions { get; init; } = new List<Permission>();
 }

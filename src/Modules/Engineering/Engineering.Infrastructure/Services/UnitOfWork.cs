@@ -8,13 +8,13 @@ namespace Engineering.Infrastructure.Services;
 
 public class UnitOfWork : IUnitOfWork
 {
-    private readonly LaminaireDbContext _context;
+    private readonly EngineeringDbContext _context;
     private IProductRepository _product;
 
     private IDbConnection _connection;
     private IDbTransaction _transaction;
 
-    public UnitOfWork(LaminaireDbContext context)
+    public UnitOfWork(EngineeringDbContext context)
     {
         _context = context;
         _connection = _context.CreateConnection;

@@ -16,27 +16,40 @@ public class JwtTokenGenerator(IOptions<JwtSettings> jwtSettings) : IJwtTokenGen
     public string GenerateToken(User user)
     {
         var signingCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
-                    SecurityAlgorithms.HmacSha256
-                );
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
+            SecurityAlgorithms.HmacSha256
+        );
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
-            new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.GivenName, user.FirstName),
+            new Claim(ClaimTypes.Surname, user.LastName),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email)
         };
 
-        var securityToken = new JwtSecurityToken(
+        // 🔹 Roles
+        foreach (var role in user.UserRoles.Select(ur => ur.Role))
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role.Name));
+
+            // 🔹 Permisos de cada rol
+            foreach (var permission in role.RolePermissions.Select(rp => rp.Permission))
+            {
+                claims.Add(new Claim("permission", permission.Slug));
+            }
+        }
+
+        var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
             audience: _jwtSettings.Audience,
             expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
             claims: claims,
             signingCredentials: signingCredentials
-            );
+        );
 
-        return new JwtSecurityTokenHandler().WriteToken(securityToken);
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     public string GenerateRefreshToken()

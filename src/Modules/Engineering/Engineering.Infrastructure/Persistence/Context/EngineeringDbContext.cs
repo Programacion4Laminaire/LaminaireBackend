@@ -4,12 +4,12 @@ using System.Data;
 
 namespace Engineering.Infrastructure.Persistence.Context;
 
-public class LaminaireDbContext
+public class EngineeringDbContext
 {
     private readonly IConfiguration _configuration;
     private readonly string _connectionString;
 
-    public LaminaireDbContext(IConfiguration configuration)
+    public EngineeringDbContext(IConfiguration configuration)
     {
         _configuration = configuration;
         _connectionString = _configuration.GetConnectionString("ReqLaminaireConnection")!;

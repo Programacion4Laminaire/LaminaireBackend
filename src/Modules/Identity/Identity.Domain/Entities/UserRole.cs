@@ -6,4 +6,6 @@ public class UserRole : BaseEntity
     public int RoleId { get; init; }
     public User User { get; init; } = null!;
     public Role Role { get; init; } = null!;
+
+
 }

@@ -7,6 +7,8 @@ public class BaseResponse<T> : BaseResponseToken
     public string? Message { get; set; }
     public int? TotalRecords { get; set; }
     public IEnumerable<BaseError>? Errors { get; set; }
+
+    public string? CookieDatos { get; set; }
 }
 
 public class BaseResponseToken

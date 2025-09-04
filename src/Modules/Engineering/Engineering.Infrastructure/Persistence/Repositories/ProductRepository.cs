@@ -6,9 +6,9 @@ using SharedKernel.Dtos.Commons;
 
 namespace Engineering.Infrastructure.Persistence.Repositories;
 
-public class ProductRepository(LaminaireDbContext context) : IProductRepository
+public class ProductRepository(EngineeringDbContext context) : IProductRepository
 {
-    private readonly LaminaireDbContext _context = context;
+    private readonly EngineeringDbContext _context = context;
 
     public async Task<ProductPriceResponseDto?> GetProductPriceByCodeAsync(string code)
     {
