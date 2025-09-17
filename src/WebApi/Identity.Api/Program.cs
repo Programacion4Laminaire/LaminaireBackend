@@ -5,9 +5,10 @@ using Identity.Application;
 using Identity.Infrastructure;
 using System.Text.Json.Serialization;
 using Engineering.Application;
+
 var builder = WebApplication.CreateBuilder(args);
-var Cors = "Cors";
-// Add services to the container.
+const string Cors = "Cors";
+
 builder.Services
     .AddInfrastructureIdentity(builder.Configuration)
     .AddApplicationIdentity()
@@ -15,44 +16,39 @@ builder.Services
     .AddApplicationEngineering()
     .AddAuthentication(builder.Configuration);
 
-builder.Services
-    .AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddCors(options =>
+builder.Services.AddCors(opt =>
 {
-    options.AddPolicy(name: Cors,
-        builder =>
-        {
-            builder.WithOrigins("*");
-            builder.AllowAnyMethod();
-            builder.AllowAnyHeader();
-        });
+    opt.AddPolicy(Cors, p =>
+        p.AllowAnyOrigin()        // <-- WithOrigins("*") no es válido
+         .AllowAnyHeader()
+         .AllowAnyMethod());
 });
 
 var app = builder.Build();
 
 app.UseCors(Cors);
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// --- Swagger: IMPORTANTÍSIMO EN SUB-APP ---
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.RoutePrefix = "swagger";                 // UI en /SirBackend/swagger
+    c.SwaggerEndpoint("v1/swagger.json",       // relativo, SIN "/" inicial
+                      "SirBackend v1");
+});
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.AddMiddleware();

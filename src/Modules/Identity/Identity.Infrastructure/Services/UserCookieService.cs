@@ -2,11 +2,12 @@
 using Identity.Application.Interfaces.Services;
 using System.Web;
 
+
 public class UserCookieService : IUserCookieService
 {
     public string BuildCookie(UserCookieDto user)
     {
-        var keyValues = new Dictionary<string, string?>
+        var pairs = new Dictionary<string, string?>
         {
             ["wCodUsuario"] = user.CodUsuario,
             ["wCedula"] = user.Cedula,
@@ -21,9 +22,7 @@ public class UserCookieService : IUserCookieService
             ["FichaT"] = user.FichaT
         };
 
-        return string.Join("&",
-            keyValues.Select(kvp =>
-                $"{kvp.Key}={Uri.EscapeDataString(kvp.Value ?? string.Empty)}"));
+        // ⚠️ Sin Escape/Encode aquí
+        return string.Join("&", pairs.Select(kvp => $"{kvp.Key}={kvp.Value ?? string.Empty}"));
     }
-
 }

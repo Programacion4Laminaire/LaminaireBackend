@@ -8,10 +8,15 @@ public class MenuMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        
         config.NewConfig<Menu, MenuResponseDto>()
-          .Map(dest => dest.MenuId, src => src.Id)
-          .Map(dest => dest.Item, src => src.Name)
-          .Map(dest => dest.Path, src => src.Url)
-          .TwoWays();
+          .Map(d => d.MenuId, s => s.Id)
+          .Map(d => d.Item, s => s.Name)
+          .Map(d => d.Icon, s => s.Icon)
+          .Map(d => d.Path, s => s.Url)
+          .Map(d => d.FatherId, s => s.FatherId)
+          .Map(d => d.IsNew, s => s.IsNew);
+
+       
     }
 }

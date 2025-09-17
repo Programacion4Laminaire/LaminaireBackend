@@ -8,5 +8,6 @@ public class Menu : BaseEntity
     public string? Url { get; init; }
     public int? FatherId { get; init; }
 
+    public bool IsNew { get; init; }
     public ICollection<Permission> Permissions { get; init; } = new List<Permission>();
 }

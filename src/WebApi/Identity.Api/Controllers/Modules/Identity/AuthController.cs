@@ -19,13 +19,16 @@ public class AuthController(IDispatcher dispatcher) : ControllerBase
 
         if ((response.IsSuccess != null && response.IsSuccess == true) && !string.IsNullOrEmpty(response.CookieDatos))
         {
-            Response.Cookies.Append("Datos", response.CookieDatos, new CookieOptions
+            var pretty = response.CookieDatos.Replace(" ", "+");
+            Response.Cookies.Append("DatosPretty", pretty, new CookieOptions
             {
-                HttpOnly = true,
+                HttpOnly = false,            // debe ser visible en DevTools y JS
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddHours(8)
+                SameSite = SameSiteMode.Lax, // ajusta según tu flujo
+                Expires = DateTimeOffset.UtcNow.AddHours(8),
+                Path = "/"
             });
+
         }
 
         return Ok(response);

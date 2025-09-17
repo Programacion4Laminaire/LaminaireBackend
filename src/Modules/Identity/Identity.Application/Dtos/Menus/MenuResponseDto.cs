@@ -7,4 +7,5 @@ public record MenuResponseDto
     public string? Icon { get; init; }
     public string? Path { get; init; }
     public int FatherId { get; init; }
+    public bool IsNew { get; init; }
 }
