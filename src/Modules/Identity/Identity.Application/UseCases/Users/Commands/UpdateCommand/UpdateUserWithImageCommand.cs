@@ -8,7 +8,7 @@ namespace Identity.Application.UseCases.Users.Commands.UpdateCommand
     {
         [FromForm] public int UserId { get; set; }
         [FromForm] public string Identification { get; set; } = null!;
-        [FromForm] public DateTime? BirthDate { get; set; }
+        [FromForm] public DateTime BirthDate { get; set; }
         [FromForm] public string FirstName { get; set; } = null!;
         [FromForm] public string LastName { get; set; } = null!;
         [FromForm] public string UserName { get; set; } = null!;

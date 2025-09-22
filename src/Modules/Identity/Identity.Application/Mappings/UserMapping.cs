@@ -22,7 +22,7 @@ public class UserMapping : IRegister
 
         config.NewConfig<CreateUserCommand, User>();
         config.NewConfig<UpdateUserCommand, User>();
-
+        config.NewConfig<UpdateUserPasswordByIdentityCommand, User>();
         config.NewConfig<User, SelectResponseDto>()
           .Map(dest => dest.Code, src => src.Id)
           .Map(dest => dest.Description, src => src.FirstName + " " + src.LastName)

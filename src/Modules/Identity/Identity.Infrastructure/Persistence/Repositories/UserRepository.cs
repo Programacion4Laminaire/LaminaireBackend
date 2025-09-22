@@ -83,4 +83,18 @@ public class UserRepository(ApplicationDbContext context) : GenericRepository<Us
         return await connection.QuerySingleOrDefaultAsync<User>
             ("PROCEDURE", param: parameters, commandType: CommandType.StoredProcedure);
     }
+
+    public async Task<User?> GetByIdentityAndBirthDateAsync(
+     string identification,
+     DateTime birthDate, string userName)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u =>
+                u.Identification == identification &&
+                u.UserName == userName &&
+                u.BirthDate.Date == birthDate.Date &&
+                u.State == "1" &&
+                u.AuditDeleteUser == null);
+    }
 }

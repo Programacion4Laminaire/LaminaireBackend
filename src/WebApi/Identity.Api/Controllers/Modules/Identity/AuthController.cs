@@ -1,6 +1,8 @@
 ﻿using Identity.Application.UseCases.Users.Commands.LoginRefreshTokenCommand;
 using Identity.Application.UseCases.Users.Commands.RevokeRefreshTokenCommand;
+using Identity.Application.UseCases.Users.Commands.UpdateCommand;
 using Identity.Application.UseCases.Users.Queries.LoginQuery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Abstractions.Messaging;
 
@@ -47,6 +49,14 @@ public class AuthController(IDispatcher dispatcher) : ControllerBase
     {
         var response = await _dispatcher.Dispatch<RevokeRefreshTokenCommand, bool>
             (new RevokeRefreshTokenCommand() { UserId = userId }, CancellationToken.None);
+        return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPut("UpdateUserPasswordByIdentity")]
+    public async Task<IActionResult> UpdateUserPasswordByIdentity([FromBody] UpdateUserPasswordByIdentityCommand request)
+    {
+        var response = await _dispatcher.Dispatch<UpdateUserPasswordByIdentityCommand, bool>(request, CancellationToken.None);
         return Ok(response);
     }
 }

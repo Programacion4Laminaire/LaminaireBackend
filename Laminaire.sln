@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -29,6 +30,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engineering.Application", "src\Modules\Engineering\Engineering.Application\Engineering.Application.csproj", "{AFF26EC9-717D-4EC0-8A31-B2C7C3B0716E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engineering.Infrastructure", "src\Modules\Engineering\Engineering.Infrastructure\Engineering.Infrastructure.csproj", "{0AC14927-8062-4534-9526-67738C797C38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SGI", "SGI", "{9363C864-315E-40CE-BD92-D84FFED91E40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SGI.Application", "src\Modules\SGI\SGI.Application\SGI.Application.csproj", "{DC297C3D-9416-45AD-8F1A-4EA45F7B9551}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SGI.Domain", "src\Modules\SGI\SGI.Domain\SGI.Domain.csproj", "{67C9AE01-F8FD-456D-AAB1-289B273061BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SGI.Infrastructure", "src\Modules\SGI\SGI.Infrastructure\SGI.Infrastructure.csproj", "{DEAAE6ED-DD41-4364-8988-A878AF105EE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +77,18 @@ Global
 		{0AC14927-8062-4534-9526-67738C797C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AC14927-8062-4534-9526-67738C797C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AC14927-8062-4534-9526-67738C797C38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC297C3D-9416-45AD-8F1A-4EA45F7B9551}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC297C3D-9416-45AD-8F1A-4EA45F7B9551}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC297C3D-9416-45AD-8F1A-4EA45F7B9551}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC297C3D-9416-45AD-8F1A-4EA45F7B9551}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67C9AE01-F8FD-456D-AAB1-289B273061BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67C9AE01-F8FD-456D-AAB1-289B273061BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67C9AE01-F8FD-456D-AAB1-289B273061BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67C9AE01-F8FD-456D-AAB1-289B273061BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEAAE6ED-DD41-4364-8988-A878AF105EE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEAAE6ED-DD41-4364-8988-A878AF105EE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEAAE6ED-DD41-4364-8988-A878AF105EE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEAAE6ED-DD41-4364-8988-A878AF105EE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +107,10 @@ Global
 		{0EFB9465-F9E1-43C8-B28E-EB01D0ADA8AD} = {BDF6B5CE-B33C-400E-9E9A-B31B1C6A3B26}
 		{AFF26EC9-717D-4EC0-8A31-B2C7C3B0716E} = {BDF6B5CE-B33C-400E-9E9A-B31B1C6A3B26}
 		{0AC14927-8062-4534-9526-67738C797C38} = {BDF6B5CE-B33C-400E-9E9A-B31B1C6A3B26}
+		{9363C864-315E-40CE-BD92-D84FFED91E40} = {C4B7041C-C521-4F82-8D56-34282C0D8646}
+		{DC297C3D-9416-45AD-8F1A-4EA45F7B9551} = {9363C864-315E-40CE-BD92-D84FFED91E40}
+		{67C9AE01-F8FD-456D-AAB1-289B273061BE} = {9363C864-315E-40CE-BD92-D84FFED91E40}
+		{DEAAE6ED-DD41-4364-8988-A878AF105EE7} = {9363C864-315E-40CE-BD92-D84FFED91E40}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9AE1374A-0C9D-45ED-8ED8-891D2FA3B918}
