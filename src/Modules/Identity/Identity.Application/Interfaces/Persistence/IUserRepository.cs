@@ -8,4 +8,5 @@ public interface IUserRepository : IGenericRepository<User>
     Task<User> UserByEmailAsync(string email);
     Task<UserWithRoleAndPermissionsDto> GetUserWithRoleAndPermissionsAsync(int userId);
     Task<User?> GetByIdentityAndBirthDateAsync(string identification, DateTime birthDate, string userName);
+    
 }

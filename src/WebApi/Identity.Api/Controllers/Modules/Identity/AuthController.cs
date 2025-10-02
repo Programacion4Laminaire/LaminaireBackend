@@ -27,7 +27,7 @@ public class AuthController(IDispatcher dispatcher) : ControllerBase
                 HttpOnly = false,            // debe ser visible en DevTools y JS
                 Secure = true,
                 SameSite = SameSiteMode.Lax, // ajusta según tu flujo
-                Expires = DateTimeOffset.UtcNow.AddHours(8),
+                Expires = DateTimeOffset.UtcNow.AddHours(192),
                 Path = "/"
             });
 

@@ -6,29 +6,38 @@ namespace SGI.Infrastructure.Persistence.Context.Configurations;
 
 internal sealed class ConsumptionConfiguration : IEntityTypeConfiguration<Consumption>
 {
-    public void Configure(EntityTypeBuilder<Consumption> b)
+    public void Configure(EntityTypeBuilder<Consumption> builder)
     {
-        b.HasKey(e => e.Id);
-        b.Property(e => e.Id).HasColumnName("ConsumptionId");
+        builder.ToTable("Consumptions");
 
-        b.Property(e => e.ResourceType)
-            .IsRequired()
-            .HasMaxLength(16); // ENERGY/GAS/WATER
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).HasColumnName("ConsumptionId");
 
-        b.Property(e => e.Year).IsRequired();
-        b.Property(e => e.Month).IsRequired();
+        builder.Property(e => e.ResourceType)
+            .HasMaxLength(16)
+            .IsRequired();
 
-        b.Property(e => e.Value).HasPrecision(18, 4).IsRequired();
-        b.Property(e => e.Unit).HasMaxLength(16).IsRequired();
+        builder.Property(e => e.Value)
+            .HasColumnType("decimal(18,4)")
+            .IsRequired();
 
-        b.Property(e => e.ReadingDate).HasColumnType("date");
-        b.Property(e => e.MeterCode).HasMaxLength(64);
-        b.Property(e => e.Note).HasMaxLength(500);
+        builder.Property(e => e.Unit)
+            .HasMaxLength(16)
+            .IsRequired();
 
-        // Evita duplicados por recurso-año-mes
-        b.HasIndex(e => new { e.ResourceType, e.Year, e.Month })
-         .IsUnique();
+        builder.Property(e => e.ReadingDate)
+            .HasColumnType("date")
+            .IsRequired();
 
-        // Filtros suaves (ya los maneja GenericRepository con AuditDelete null)
+        builder.Property(e => e.Note)
+            .HasMaxLength(500);
+
+        
+        builder.Ignore(e => e.State);
+
+        
+        builder.HasIndex(e => new { e.ResourceType, e.ReadingDate })
+               .IsUnique()
+               .HasDatabaseName("UX_Consumptions_ResourceType_ReadingDate");
     }
 }

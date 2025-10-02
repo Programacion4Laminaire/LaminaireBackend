@@ -11,13 +11,13 @@ namespace Identity.Application.UseCases.Users.Queries.LoginQuery;
 public class LoginHandler(
     IUnitOfWork unitOfWork,
     IJwtTokenGenerator jwtTokenGenerator,
-    ILaminaireUserRepository laminaireUserRepository,
+    IUserCoockiesRepository userCoockiesRepository,
     IUserCookieService userCookieService
     ) : IQueryHandler<LoginQuery, string>
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
-    private readonly ILaminaireUserRepository _laminaireUserRepository = laminaireUserRepository;
+    private readonly IUserCoockiesRepository _userCoockiesRepository = userCoockiesRepository;
     private readonly IUserCookieService _userCookieService = userCookieService;
 
     public async Task<BaseResponse<string>> Handle(LoginQuery request, CancellationToken cancellationToken)
@@ -59,7 +59,7 @@ public class LoginHandler(
             response.Message = "Token generado correctamente";
 
             // 👇 Construir cookie Datos desde Tbl_Usuarios / Tbl_Areas
-            var lamUser = await _laminaireUserRepository.GetUserCookieAsync(request.Email);
+            var lamUser = await _userCoockiesRepository.GetUserCookieAsync(request.Email);
             if (lamUser is not null)
             {
                 response.CookieDatos = _userCookieService.BuildCookie(lamUser);

@@ -18,11 +18,4 @@
     <ProjectReference Include="..\SGI.Domain\SGI.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-    <Folder Include="Mappings\" />
-    <Folder Include="UseCases\Consumption\Queries\GetAllQuery\" />
-    <Folder Include="UseCases\Consumption\Queries\GetByIdQuery\" />
-  </ItemGroup>
-
 </Project>

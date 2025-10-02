@@ -5,6 +5,8 @@ using Identity.Application;
 using Identity.Infrastructure;
 using System.Text.Json.Serialization;
 using Engineering.Application;
+using SGI.Application;
+using SGI.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 const string Cors = "Cors";
@@ -14,6 +16,8 @@ builder.Services
     .AddApplicationIdentity()
     .AddInfrastructureEngineering(builder.Configuration)
     .AddApplicationEngineering()
+    .AddApplicationSGI()
+    .AddInfrastructureSGI(builder.Configuration)
     .AddAuthentication(builder.Configuration);
 
 builder.Services.AddControllers()

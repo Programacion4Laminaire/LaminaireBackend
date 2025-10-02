@@ -42,7 +42,9 @@ public static class DependencyInjection
         }
 
         // Repositorios/Servicios Dapper
-        services.AddScoped<ILaminaireUserRepository, UserCoockiesRepository>();
+        services.AddScoped<IUserCoockiesRepository, UserCoockiesRepository>();
+        services.AddScoped<ILaminaireUserRepository, LaminaireUserRepository>();
+
         services.AddScoped<IUserCookieService, UserCookieService>();
 
         // Infraestructura base
