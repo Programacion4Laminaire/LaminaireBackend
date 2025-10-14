@@ -3,33 +3,35 @@ using SGI.Application.Interfaces.Persistence;
 using SGI.Application.Interfaces.Services;
 using SGI.Infrastructure.Persistence.Context;
 using SGI.Infrastructure.Persistence.Repositories;
+using SharedKernel.Abstractions.Services; // 👈 importante
 using System.Data;
 
-namespace SGI.Infrastructure.Services;
-
-public class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
+namespace SGI.Infrastructure.Services
 {
-    private readonly ApplicationDbContext _context = context;
-    private readonly IConsumptionRepository _consumption = null!;
-
-
-  
-
-    public IConsumptionRepository Consumption => _consumption ?? new ConsumptionRepository(_context);
-
-    public IDbTransaction BeginTransaction()
+    public class UnitOfWork(ApplicationDbContext context, ICurrentUserService currentUser) : IUnitOfWork
     {
-        var transaction = _context.Database.BeginTransaction();
-        return transaction.GetDbTransaction();
-    }
+        private readonly ApplicationDbContext _context = context;
+        private readonly ICurrentUserService _currentUser = currentUser; // 👈 agregado
 
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-    }
+        private IConsumptionRepository? _consumption;
 
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
+        public IConsumptionRepository Consumption =>
+            _consumption ??= new ConsumptionRepository(_context, _currentUser); // 👈 corregido
+
+        public IDbTransaction BeginTransaction()
+        {
+            var transaction = _context.Database.BeginTransaction();
+            return transaction.GetDbTransaction();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
     }
 }

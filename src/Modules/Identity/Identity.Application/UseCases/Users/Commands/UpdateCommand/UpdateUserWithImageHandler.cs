@@ -37,7 +37,7 @@ public class UpdateUserWithImageHandler(
             user.Password = string.IsNullOrWhiteSpace(request.Password)
                 ? user.Password
                 : BC.HashPassword(request.Password);
-            user.State = "1"; // o usar request.State si lo agregas al comando
+            user.State = request.State; // o usar request.State si lo agregas al comando
 
             // Imagen nueva
             if (request.Image != null && request.Image.Length > 0)

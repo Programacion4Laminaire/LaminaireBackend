@@ -4,97 +4,100 @@ using Identity.Application.Interfaces.Persistence;
 using Identity.Domain.Entities;
 using Identity.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Abstractions.Services; // 👈 IMPORTANTE
 using System.Data;
 
-namespace Identity.Infrastructure.Persistence.Repositories;
-
-public class UserRepository(ApplicationDbContext context) : GenericRepository<User>(context), IUserRepository
+namespace Identity.Infrastructure.Persistence.Repositories
 {
-    private readonly ApplicationDbContext _context = context;
-
-    public async Task<UserWithRoleAndPermissionsDto> GetUserWithRoleAndPermissionsAsync(int userId)
+    public class UserRepository(ApplicationDbContext context, ICurrentUserService currentUser)
+        : GenericRepository<User>(context, currentUser), IUserRepository
     {
-        var userWithRoles = await (from u in _context.Users
-                                   join ur in _context.UserRoles on u.Id equals ur.UserId
-                                   join r in _context.Roles on ur.RoleId equals r.Id
-                                   where u.Id == userId
-                                   select new
-                                   {
-                                       User = u,
-                                       Role = r
-                                   }).FirstOrDefaultAsync();
+        private readonly ApplicationDbContext _context = context;
 
-        if (userWithRoles == null)
+        public async Task<UserWithRoleAndPermissionsDto> GetUserWithRoleAndPermissionsAsync(int userId)
         {
-            return null!;
+            var userWithRoles = await (from u in _context.Users
+                                       join ur in _context.UserRoles on u.Id equals ur.UserId
+                                       join r in _context.Roles on ur.RoleId equals r.Id
+                                       where u.Id == userId
+                                       select new
+                                       {
+                                           User = u,
+                                           Role = r
+                                       }).FirstOrDefaultAsync();
+
+            if (userWithRoles == null)
+                return null!;
+
+            var permissions = await (from rp in _context.RolePermissions
+                                     join p in _context.Permissions on rp.PermissionId equals p.Id
+                                     join m in _context.Menus on p.MenuId equals m.Id
+                                     where rp.RoleId == userWithRoles.Role.Id
+                                     select new PermissionDto
+                                     {
+                                         PermissionId = p.Id,
+                                         Name = p.Name,
+                                         Description = p.Description,
+                                         Slug = p.Slug,
+                                     }).ToListAsync();
+
+            return new UserWithRoleAndPermissionsDto
+            {
+                UserId = userWithRoles.User.Id,
+                Identification = userWithRoles.User.Identification,
+                BirthDate = userWithRoles.User.BirthDate,
+                FirstName = userWithRoles.User.FirstName,
+                LastName = userWithRoles.User.LastName,
+                UserName = userWithRoles.User.UserName,
+                Email = userWithRoles.User.Email,
+                ProfileImagePath = userWithRoles.User.ProfileImagePath,
+                Role = new RoleDto
+                {
+                    RoleId = userWithRoles.Role.Id,
+                    Name = userWithRoles.Role.Name,
+                    Description = userWithRoles.Role.Description,
+                    Permissions = permissions
+                }
+            };
         }
 
-        var permissions = await (from rp in _context.RolePermissions
-                                 join p in _context.Permissions on rp.PermissionId equals p.Id
-                                 join m in _context.Menus on p.MenuId equals m.Id
-                                 where rp.RoleId == userWithRoles.Role.Id
-                                 select new PermissionDto
-                                 {
-                                     PermissionId = p.Id,
-                                     Name = p.Name,
-                                     Description = p.Description,
-                                     Slug = p.Slug,
-                                 }).ToListAsync();
-
-        return new UserWithRoleAndPermissionsDto
+        public async Task<User> UserByEmailAsync(string email)
         {
-            UserId = userWithRoles.User.Id,
-            Identification = userWithRoles.User.Identification,
-            BirthDate = userWithRoles.User.BirthDate,
-            FirstName = userWithRoles.User.FirstName,
-            LastName = userWithRoles.User.LastName,
-            UserName = userWithRoles.User.UserName,
-            Email = userWithRoles.User.Email,
-            ProfileImagePath = userWithRoles.User.ProfileImagePath, // 👈 agregado
-            Role = new RoleDto
-            {
-                RoleId = userWithRoles.Role.Id,
-                Name = userWithRoles.Role.Name,
-                Description = userWithRoles.Role.Description,
-                Permissions = permissions
-            }
-        };
-    }
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    (x.Email == email || x.UserName == email) &&
+                    x.State == "1" &&
+                    x.AuditDeleteUser == null &&
+                    x.AuditDeleteDate == null);
 
-    public async Task<User> UserByEmailAsync(string email)
-    {
-        var user = await _context.Users
-                 .AsNoTracking()
-                 .FirstOrDefaultAsync(x =>
-                (x.Email == email || x.UserName == email) &&
-                x.State == "1" &&
-                x.AuditDeleteUser == null &&
-                x.AuditDeleteDate == null);
+            return user!;
+        }
 
-        return user!;
-    }
+        public async Task<User> UserAsync(User user)
+        {
+            using var connection = _context.CreateConnection();
+            var parameters = new DynamicParameters();
+            parameters.Add("UserId", user.Id);
+            parameters.Add("FirstNam", user.FirstName);
 
-    public async Task<User> UserAsync(User user)
-    {
-        using var connection = _context.CreateConnection();
-        var parameters = new DynamicParameters();
-        parameters.Add("UserId", user.Id);
-        parameters.Add("FirstNam", user.FirstName);
-        return await connection.QuerySingleOrDefaultAsync<User>
-            ("PROCEDURE", param: parameters, commandType: CommandType.StoredProcedure);
-    }
+            return await connection.QuerySingleOrDefaultAsync<User>(
+                "PROCEDURE", param: parameters, commandType: CommandType.StoredProcedure);
+        }
 
-    public async Task<User?> GetByIdentityAndBirthDateAsync(
-     string identification,
-     DateTime birthDate, string userName)
-    {
-        return await _context.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u =>
-                u.Identification == identification &&
-                u.UserName == userName &&
-                u.BirthDate.Date == birthDate.Date &&
-                u.State == "1" &&
-                u.AuditDeleteUser == null);
+        public async Task<User?> GetByIdentityAndBirthDateAsync(
+            string identification,
+            DateTime birthDate,
+            string userName)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u =>
+                    u.Identification == identification &&
+                    u.UserName == userName &&
+                    u.BirthDate.Date == birthDate.Date &&
+                    u.State == "1" &&
+                    u.AuditDeleteUser == null);
+        }
     }
 }

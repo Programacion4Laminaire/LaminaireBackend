@@ -1,12 +1,16 @@
+using Engineering.Application;
 using Engineering.Infrastructure;
 using Identity.Api.Authentication;
 using Identity.Api.Middleware;
+using Identity.Api.Services;
 using Identity.Application;
 using Identity.Infrastructure;
-using System.Text.Json.Serialization;
-using Engineering.Application;
 using SGI.Application;
 using SGI.Infrastructure;
+using Logistics.Application;
+using Logistics.Infrastructure;
+using SharedKernel.Abstractions.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 const string Cors = "Cors";
@@ -18,7 +22,12 @@ builder.Services
     .AddApplicationEngineering()
     .AddApplicationSGI()
     .AddInfrastructureSGI(builder.Configuration)
+    .AddInfrastructureLogistics(builder.Configuration)
+    .AddApplicationLogistics()
     .AddAuthentication(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);

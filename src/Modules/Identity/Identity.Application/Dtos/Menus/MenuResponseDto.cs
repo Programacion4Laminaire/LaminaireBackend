@@ -1,4 +1,6 @@
-﻿namespace Identity.Application.Dtos.Menus;
+﻿using System.Text.Json.Serialization;
+
+namespace Identity.Application.Dtos.Menus;
 
 public record MenuResponseDto
 {
@@ -7,5 +9,7 @@ public record MenuResponseDto
     public string? Icon { get; init; }
     public string? Path { get; init; }
     public int FatherId { get; init; }
+
+    [JsonPropertyName("isNew")]    
     public bool IsNew { get; init; }
 }

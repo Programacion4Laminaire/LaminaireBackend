@@ -4,40 +4,44 @@ using Identity.Domain.Entities;
 using Identity.Infrastructure.Persistence.Context;
 using Identity.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
+using SharedKernel.Abstractions.Services; // 👈 importante
 using System.Data;
 
-namespace Identity.Infrastructure.Services;
-
-public class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
+namespace Identity.Infrastructure.Services
 {
-    private readonly ApplicationDbContext _context = context;
-    private readonly IUserRepository _user = null!;
-    private readonly IMenuRepository _menu = null!;
-    private readonly IGenericRepository<Role> _role = null!;
-    private readonly IGenericRepository<UserRole> _userRole = null!;
-    private readonly IPermissionRepository _permission = null!;
-    private readonly IRefreshTokenRepository _refreshToken = null!;
-
-    public IUserRepository User => _user ?? new UserRepository(_context);
-    public IMenuRepository Menu => _menu ?? new MenuRepository(_context);
-    public IGenericRepository<Role> Role => _role ?? new GenericRepository<Role>(_context);
-    public IGenericRepository<UserRole> UserRole => _userRole ?? new GenericRepository<UserRole>(_context);
-    public IPermissionRepository Permission => _permission ?? new PermissionRepository(_context);
-    public IRefreshTokenRepository RefreshToken => _refreshToken ?? new RefreshTokenRepository(_context);
-
-    public IDbTransaction BeginTransaction()
+    public class UnitOfWork(ApplicationDbContext context, ICurrentUserService currentUser) : IUnitOfWork
     {
-        var transaction = _context.Database.BeginTransaction();
-        return transaction.GetDbTransaction();
-    }
+        private readonly ApplicationDbContext _context = context;
+        private readonly ICurrentUserService _currentUser = currentUser; // 👈 inyectado
 
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-    }
+        private IUserRepository? _user;
+        private IMenuRepository? _menu;
+        private IGenericRepository<Role>? _role;
+        private IGenericRepository<UserRole>? _userRole;
+        private IPermissionRepository? _permission;
+        private IRefreshTokenRepository? _refreshToken;
 
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
+        public IUserRepository User => _user ??= new UserRepository(_context, _currentUser); // 👈 corregido
+        public IMenuRepository Menu => _menu ??= new MenuRepository(_context);
+        public IGenericRepository<Role> Role => _role ??= new GenericRepository<Role>(_context, _currentUser);
+        public IGenericRepository<UserRole> UserRole => _userRole ??= new GenericRepository<UserRole>(_context, _currentUser);
+        public IPermissionRepository Permission => _permission ??= new PermissionRepository(_context);
+        public IRefreshTokenRepository RefreshToken => _refreshToken ??= new RefreshTokenRepository(_context);
+
+        public IDbTransaction BeginTransaction()
+        {
+            var transaction = _context.Database.BeginTransaction();
+            return transaction.GetDbTransaction();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
     }
 }

@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Persistence\Context\Configurations\" />
-    <Folder Include="Persistence\Context\Migrations\" />
   </ItemGroup>
 
 </Project>

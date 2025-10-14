@@ -29,16 +29,25 @@ public sealed class GetAllUserRoleHandler(IUnitOfWork unitOfWork, IOrderingQuery
 
             if (request.NumFilter is not null && !string.IsNullOrEmpty(request.TextFilter))
             {
+                string filter = request.TextFilter.ToLower().Trim();
+
                 switch (request.NumFilter)
                 {
-                    case 1:
-                        userRoles = userRoles.Where(x => x.User.FirstName.Contains(request.TextFilter));
+                    case 1: // 🔍 Buscar por nombre completo del usuario
+                        userRoles = userRoles.Where(x =>
+                            (x.User.FirstName + " " + x.User.LastName).ToLower().Contains(filter));
                         break;
-                    case 2:
-                        userRoles = userRoles.Where(x => x.Role.Name.Contains(request.TextFilter));
+
+                    case 2: // 🔍 Buscar por username del usuario
+                        userRoles = userRoles.Where(x => x.User.UserName.ToLower().Contains(filter));
+                        break;
+
+                    case 3: // 🔍 Buscar por nombre del rol
+                        userRoles = userRoles.Where(x => x.Role.Name.ToLower().Contains(filter));
                         break;
                 }
             }
+
 
             if (request.StateFilter is not null)
             {

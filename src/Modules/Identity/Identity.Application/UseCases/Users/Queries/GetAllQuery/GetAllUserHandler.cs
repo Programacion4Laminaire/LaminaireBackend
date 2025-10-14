@@ -24,16 +24,25 @@ public class GetAllUserHandler(IUnitOfWork unitOfWork, IOrderingQuery orderingQu
 
             if (request.NumFilter is not null && !string.IsNullOrEmpty(request.TextFilter))
             {
+                string filter = request.TextFilter.ToLower().Trim();
+
                 switch (request.NumFilter)
                 {
-                    case 1:
-                        users = users.Where(x => x.FirstName.Contains(request.TextFilter));
+                    case 1: // 🔍 Buscar por nombre completo
+                        users = users.Where(x =>
+                            (x.FirstName + " " + x.LastName).ToLower().Contains(filter));
                         break;
-                    case 2:
-                        users = users.Where(x => x.LastName.Contains(request.TextFilter));
+
+                    case 2: // 🔍 Buscar por identificación
+                        users = users.Where(x => x.Identification.ToLower().Contains(filter));
+                        break;
+
+                    case 3: // 🔍 Buscar por nombre de usuario
+                        users = users.Where(x => x.UserName.ToLower().Contains(filter));
                         break;
                 }
             }
+
 
             if (request.StateFilter is not null)
             {

@@ -12,7 +12,7 @@ using SharedKernel.Abstractions.Messaging;
 
 namespace SGI.Api.Controllers.Modules.SGI;
 
-[Authorize]
+//[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ConsumptionController(IDispatcher dispatcher) : ControllerBase
