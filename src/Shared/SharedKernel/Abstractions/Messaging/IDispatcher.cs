@@ -10,4 +10,5 @@ public interface IDispatcher
             CancellationToken cancellationToken
         )
           where TRequest : IRequest<TResponse>;
+  
 }

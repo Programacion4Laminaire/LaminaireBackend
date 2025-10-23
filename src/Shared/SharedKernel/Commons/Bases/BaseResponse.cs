@@ -1,4 +1,5 @@
-﻿namespace SharedKernel.Commons.Bases;
+﻿
+namespace SharedKernel.Commons.Bases;
 
 public class BaseResponse<T> : BaseResponseToken
 {
@@ -7,6 +8,7 @@ public class BaseResponse<T> : BaseResponseToken
     public string? Message { get; set; }
     public int? TotalRecords { get; set; }
     public IEnumerable<BaseError>? Errors { get; set; }
+
 }
 
 public class BaseResponseToken
