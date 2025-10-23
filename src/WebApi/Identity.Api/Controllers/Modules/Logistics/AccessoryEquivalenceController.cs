@@ -3,6 +3,7 @@ using Logistics.Application.UseCases.AccessoryEquivalence.Commands.CreateCommand
 using Logistics.Application.UseCases.AccessoryEquivalence.Commands.DeleteCommand;
 using Logistics.Application.UseCases.AccessoryEquivalence.Commands.UpdateCommand;
 using Logistics.Application.UseCases.AccessoryEquivalence.Queries;
+using Logistics.Application.UseCases.AccessoryEquivalence.Queries.ExportQuery;
 using Logistics.Application.UseCases.AccessoryEquivalence.Queries.GetDescripcionQuery;
 using Logistics.Application.UseCases.AccessoryEquivalence.Queries.GetPagedQuery;
 using Logistics.Application.UseCases.AccessoryEquivalence.Queries.SelectQuery;
@@ -90,6 +91,39 @@ namespace Identity.Api.Controllers.Modules.Logistics
             return Ok(result);
         }
 
+       
+        [HttpGet("Export")]
+        public async Task<IActionResult> Export(
+            [FromQuery] string sort = "Id",
+            [FromQuery] string order = "desc",
+            [FromQuery] int numFilter = 0,
+            [FromQuery] string? textFilter = null,
+            CancellationToken ct = default)
+        {
+            var query = new ExportEquivalenceQuery
+            {
+                Sort = sort,
+                Order = order,
+                NumFilter = numFilter,
+                TextFilter = textFilter
+            };
 
+            var result = await _dispatcher.Dispatch<ExportEquivalenceQuery, Stream>(query, ct);
+
+           
+            if (!(result.IsSuccess ?? false) || result.Data == null)
+            {
+                
+                return BadRequest(new { message = result.Message });
+            }
+
+           
+            return File(
+                fileStream: result.Data,
+                contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileDownloadName: $"equivalencias_{DateTime.UtcNow:yyyyMMdd_HHmmss}.xlsx"
+            );
+        }
     }
 }
+
