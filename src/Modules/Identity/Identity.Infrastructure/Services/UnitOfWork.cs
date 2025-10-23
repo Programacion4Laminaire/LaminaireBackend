@@ -21,12 +21,15 @@ namespace Identity.Infrastructure.Services
         private IPermissionRepository? _permission;
         private IRefreshTokenRepository? _refreshToken;
 
-        public IUserRepository User => _user ??= new UserRepository(_context, _currentUser); // 👈 corregido
-        public IMenuRepository Menu => _menu ??= new MenuRepository(_context);
+        public IUserRepository User => _user ??= new UserRepository(_context, _currentUser);
+        // UnitOfWork.cs (línea clave)
+        public IMenuRepository Menu => _menu ??= new MenuRepository(_context, _currentUser);
+
         public IGenericRepository<Role> Role => _role ??= new GenericRepository<Role>(_context, _currentUser);
         public IGenericRepository<UserRole> UserRole => _userRole ??= new GenericRepository<UserRole>(_context, _currentUser);
         public IPermissionRepository Permission => _permission ??= new PermissionRepository(_context);
         public IRefreshTokenRepository RefreshToken => _refreshToken ??= new RefreshTokenRepository(_context);
+       
 
         public IDbTransaction BeginTransaction()
         {

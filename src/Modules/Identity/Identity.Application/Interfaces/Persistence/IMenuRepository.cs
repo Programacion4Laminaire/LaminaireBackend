@@ -1,12 +1,14 @@
 ﻿using Identity.Domain.Entities;
 
-namespace Identity.Application.Interfaces.Persistence;
-
-public interface IMenuRepository
+namespace Identity.Application.Interfaces.Persistence
 {
-    Task<IEnumerable<Menu>> GetMenuByUserIdAsync(int userId);
-    Task<IEnumerable<Menu>> GetMenuPermissionByRoleIdAsync(int? roleId);
-    Task<bool> RegisterRoleMenus(IEnumerable<MenuRole> menuRoles);
-    Task<List<MenuRole>> GetMenuRolesByRoleId(int roleId);
-    Task<bool> DeleteMenuRole(List<MenuRole> menuRoles);
+ 
+    public interface IMenuRepository : IGenericRepository<Menu>
+    {
+        Task<IEnumerable<Menu>> GetMenuByUserIdAsync(int userId);
+        Task<IEnumerable<Menu>> GetMenuPermissionByRoleIdAsync(int? roleId);
+        Task<bool> RegisterRoleMenus(IEnumerable<MenuRole> menuRoles);
+        Task<List<MenuRole>> GetMenuRolesByRoleId(int roleId);
+        Task<bool> DeleteMenuRole(List<MenuRole> menuRoles);
+    }
 }
