@@ -17,4 +17,5 @@ public class GlobalMessages
     public const string MESSAGE_GOOGLE_ERROR = "Su cuenta no se encuentra registrada en el sistema.";
     public const string MESSAGE_AUTH_TYPE_GOOGLE = "Por favor, ingrese con la opción de Google.";
     public const string MESSAGE_AUTH_TYPE = "Su cuenta no se encuentra registrada en el sistema.";
+    public const string MESSAGE_TRANSACTION = "Los cambios se guardaron correctamente.";
 }

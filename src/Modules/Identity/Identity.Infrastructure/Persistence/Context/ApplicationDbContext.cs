@@ -16,6 +16,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<RolePermission> RolePermissions { get; set; } = null!;
     public DbSet<Permission> Permissions { get; set; } = null!;
     public DbSet<Menu> Menus { get; set; } = null!;
+
     public DbSet<MenuRole> MenuRoles { get; set; } = null!;
     public DbSet<UserRole> UserRoles { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;

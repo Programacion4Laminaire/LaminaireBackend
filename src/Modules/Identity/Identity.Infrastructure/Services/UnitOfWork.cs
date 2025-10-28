@@ -12,7 +12,7 @@ namespace Identity.Infrastructure.Services
     public class UnitOfWork(ApplicationDbContext context, ICurrentUserService currentUser) : IUnitOfWork
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly ICurrentUserService _currentUser = currentUser; // 👈 inyectado
+        private readonly ICurrentUserService _currentUser = currentUser; 
 
         private IUserRepository? _user;
         private IMenuRepository? _menu;
@@ -22,12 +22,12 @@ namespace Identity.Infrastructure.Services
         private IRefreshTokenRepository? _refreshToken;
 
         public IUserRepository User => _user ??= new UserRepository(_context, _currentUser);
-        // UnitOfWork.cs (línea clave)
+    
         public IMenuRepository Menu => _menu ??= new MenuRepository(_context, _currentUser);
 
         public IGenericRepository<Role> Role => _role ??= new GenericRepository<Role>(_context, _currentUser);
         public IGenericRepository<UserRole> UserRole => _userRole ??= new GenericRepository<UserRole>(_context, _currentUser);
-        public IPermissionRepository Permission => _permission ??= new PermissionRepository(_context);
+        public IPermissionRepository Permission => _permission ??= new PermissionRepository(_context, _currentUser);
         public IRefreshTokenRepository RefreshToken => _refreshToken ??= new RefreshTokenRepository(_context);
        
 

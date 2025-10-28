@@ -1,8 +1,14 @@
 ﻿using Identity.Application.Dtos.Permissions;
+using Identity.Application.UseCases.Permissions.Commands.CreateCommand;
+using Identity.Application.UseCases.Permissions.Commands.DeleteCommand;
+using Identity.Application.UseCases.Permissions.Commands.UpdateCommand;
+using Identity.Application.UseCases.Permissions.Queries.GetAllQuery;
 using Identity.Application.UseCases.Permissions.Queries.GetByIdQuery;
+using Identity.Application.UseCases.Permissions.Queries.GetSelectQuery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Abstractions.Messaging;
+using SharedKernel.Dtos.Commons;
 
 namespace Identity.Api.Controllers.Modules.Identity;
 
@@ -13,11 +19,64 @@ public class PermissionController(IDispatcher dispatcher) : ControllerBase
 {
     private readonly IDispatcher _dispatcher = dispatcher;
 
+    // ======= EXISTENTE =======
     [HttpGet("PermissionByRoleId/{roleId:int}")]
     public async Task<IActionResult> GetPermissionsByRoleId(int roleId)
     {
         var response = await _dispatcher.Dispatch<GetPermissionsByRoleIdQuery, IEnumerable<PermissionsByRoleResponseDto>>
             (new GetPermissionsByRoleIdQuery() { RoleId = roleId }, CancellationToken.None);
+
+        return Ok(response);
+    }
+
+    // ======= CRUD =======
+
+    [HttpGet]
+    public async Task<IActionResult> PermissionList([FromQuery] GetAllPermissionQuery query)
+    {
+        var response = await _dispatcher.Dispatch<GetAllPermissionQuery, IEnumerable<PermissionCrudResponseDto>>
+            (query, CancellationToken.None);
+
+        return Ok(response);
+    }
+
+    [HttpGet("Select")]
+    public async Task<IActionResult> PermissionSelect()
+    {
+        var response = await _dispatcher.Dispatch<GetPermissionSelectQuery, IEnumerable<SelectResponseDto>>
+            (new GetPermissionSelectQuery(), CancellationToken.None);
+
+        return Ok(response);
+    }
+
+    [HttpGet("{permissionId:int}")]
+    public async Task<IActionResult> PermissionById(int permissionId)
+    {
+        var response = await _dispatcher.Dispatch<GetPermissionByIdQuery, PermissionCrudByIdResponseDto>
+            (new GetPermissionByIdQuery() { PermissionId = permissionId }, CancellationToken.None);
+
+        return Ok(response);
+    }
+
+    [HttpPost("Create")]
+    public async Task<IActionResult> PermissionCreate([FromBody] CreatePermissionCommand command)
+    {
+        var response = await _dispatcher.Dispatch<CreatePermissionCommand, bool>(command, CancellationToken.None);
+        return Ok(response);
+    }
+
+    [HttpPut("Update")]
+    public async Task<IActionResult> PermissionUpdate([FromBody] UpdatePermissionCommand command)
+    {
+        var response = await _dispatcher.Dispatch<UpdatePermissionCommand, bool>(command, CancellationToken.None);
+        return Ok(response);
+    }
+
+    [HttpPut("Delete/{permissionId:int}")]
+    public async Task<IActionResult> PermissionDelete(int permissionId)
+    {
+        var response = await _dispatcher.Dispatch<DeletePermissionCommand, bool>
+            (new DeletePermissionCommand() { PermissionId = permissionId }, CancellationToken.None);
 
         return Ok(response);
     }

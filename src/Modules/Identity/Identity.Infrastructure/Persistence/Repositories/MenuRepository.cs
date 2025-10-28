@@ -1,4 +1,5 @@
-﻿using Identity.Application.Interfaces.Persistence;
+﻿// Identity.Infrastructure/Persistence/Repositories/MenuRepository.cs
+using Identity.Application.Interfaces.Persistence;
 using Identity.Domain.Entities;
 using Identity.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,13 @@ namespace Identity.Infrastructure.Persistence.Repositories
     public class MenuRepository : GenericRepository<Menu>, IMenuRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly ICurrentUserService _currentUser;
 
         public MenuRepository(ApplicationDbContext context, ICurrentUserService currentUser)
             : base(context, currentUser)
         {
             _context = context;
+            _currentUser = currentUser;
         }
 
         public async Task<bool> DeleteMenuRole(List<MenuRole> menuRoles)
@@ -39,16 +42,18 @@ namespace Identity.Infrastructure.Persistence.Repositories
             return menus;
         }
 
+        // IMenuRepository / MenuRepository
         public async Task<IEnumerable<Menu>> GetMenuPermissionByRoleIdAsync(int? roleId)
         {
             var query = _context.Menus
                 .AsNoTracking()
-                .AsSplitQuery()
-                .Where(m => m.Url != null && m.State == "1");
+                .AsSplitQuery()             
+                .Where(m => m.State == "1");
 
-            var menus = await query.ToListAsync();
-            return menus;
+            return await query.ToListAsync();
         }
+
+
 
         public async Task<List<MenuRole>> GetMenuRolesByRoleId(int roleId)
         {
@@ -60,13 +65,15 @@ namespace Identity.Infrastructure.Persistence.Repositories
 
         public async Task<bool> RegisterRoleMenus(IEnumerable<MenuRole> menuRoles)
         {
-            foreach (var menuRole in menuRoles)
-            {
-                menuRole.AuditCreateUser = 1;
-                menuRole.AuditCreateDate = DateTime.Now;
-                menuRole.State = "1";
+            var now = DateTime.UtcNow;
+            var uid = _currentUser.UserId ?? 1;
 
-                _context.MenuRoles.Add(menuRole);
+            foreach (var mr in menuRoles)
+            {
+                mr.AuditCreateUser = uid;
+                mr.AuditCreateDate = now;
+                mr.State = "1";
+                _context.MenuRoles.Add(mr);
             }
 
             var recordsAffected = await _context.SaveChangesAsync();
