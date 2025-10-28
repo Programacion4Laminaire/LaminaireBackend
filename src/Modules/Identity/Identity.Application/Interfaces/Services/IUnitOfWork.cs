@@ -11,6 +11,7 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<Role> Role { get; }
     IGenericRepository<UserRole> UserRole { get; }
     IPermissionRepository Permission { get; }
+    IUserPermissionRepository UserPermission { get; }
     IRefreshTokenRepository RefreshToken { get; }
     Task SaveChangesAsync();
     IDbTransaction BeginTransaction();
