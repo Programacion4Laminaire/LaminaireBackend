@@ -1,5 +1,6 @@
 using Engineering.Application;
 using Engineering.Infrastructure;
+锘縰sing Engineering.Infrastructure;
 using Identity.Api.Authentication;
 using Identity.Api.Middleware;
 using Identity.Api.Services;
@@ -15,6 +16,35 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 const string Cors = "Cors";
 
+using Engineering.Application;
+using Country.Infrastructure;
+using Country.Application;
+using Country.Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
+using CourierJob.Infrastructure.Persistence.Context;
+using City.Application;
+using CarrierJob.Infrastructure;
+using CarrierJob.Application;
+using ResultCurriers.Infrastructure;
+using SharedKernel.Abstractions.Encript;
+using SharedKernel.Helpers;
+using Couriers.Application;
+using Couriers.Infrastructure;
+using Couriers.Infrastructure.Persistence.Repositories;
+using Couriers.Application.Interfaces;
+using ResultCouriers.Application.Interfaces;
+using ResultCouriers.Infrastructure;
+using ResultCouriers.Application;
+using Couriers.Infrastructure.Persistence.Context;
+using ResultCouriers.Infrastructure.Persistence.Context;
+
+
+// --- Constructor de la aplicaci贸n (Application Builder) ---
+var builder = WebApplication.CreateBuilder(args);
+var Cors = "Cors";
+
+// --- Registro de servicios (Service Registration) ---
+// Agrega servicios al contenedor.
 builder.Services
     .AddInfrastructureIdentity(builder.Configuration)
     .AddApplicationIdentity()
@@ -24,13 +54,48 @@ builder.Services
     .AddInfrastructureSGI(builder.Configuration)
     .AddInfrastructureLogistics(builder.Configuration)
     .AddApplicationLogistics()
+    .AddInfrastructureCountry(builder.Configuration)
+    .AddApplicationCountry()
+    .AddInfrastructureCity(builder.Configuration)
+    .AddApplicationCity()
+    .AddInfrastructureCarrierJob(builder.Configuration)
+    .AddInfrastructureResultCurriers(builder.Configuration)
+    .AddApplicationCouriersJob()
+    .AddApplicationCouriers()
+    .AddApplicationResultCouriers()
+    .AddInfrastructureCouriers(builder.Configuration)
     .AddAuthentication(builder.Configuration);
+    
+builder.Services.AddScoped<ICourierRepository, Couriers.Infrastructure.Persistence.Repositories.CouriesRepository> ();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
+// Registra el DbContext con la cadena de conexi贸n
+builder.Services.AddDbContext<CountryDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
+builder.Services.AddDbContext<CountryDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
+builder.Services.AddDbContext<CourierJobDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
+builder.Services.AddDbContext<ResultCouriersDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
+builder.Services.AddDbContext<CouriersDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+       
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+
+       // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+builder.Services.AddScoped<
+    ResultCouriers.Application.Interfaces.IResultCourierRPA,
+    ResultCouriers.Infrastructure.ResultCourierRPA>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -40,16 +105,41 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy(Cors, p =>
-        p.AllowAnyOrigin()        // <-- WithOrigins("*") no es v醠ido
+        p.AllowAnyOrigin()        // <-- WithOrigins("*") no es v锟絣ido
          .AllowAnyHeader()
          .AllowAnyMethod());
 });
+string aesKeyBase64 = builder.Configuration
+    .GetSection("EncryptionSettings:KeyBase64").Value
+    ?? throw new InvalidOperationException("La clave AES no est谩 configurada.");
+
+builder.Services.AddSingleton<IDataEncryptor>(provider =>
+    new AesEncryptor(aesKeyBase64)
+);
+builder.Services.AddHttpClient<ResultCouriers.Application.Interfaces.IResultCourierRPA, ResultCouriers.Infrastructure.ResultCourierRPA>(client =>
+{
+  
+
+    client.Timeout = TimeSpan.FromSeconds(3600);
+});
+
 
 var app = builder.Build();
 
+
+// --- Middleware y configuraci贸n (Middleware and Configuration) ---
+// Ejecuta las migraciones de la base de datos al iniciar.
+// Nota: Esta es una buena pr谩ctica para el desarrollo, pero para entornos de producci贸n con m煤ltiples instancias,
+// es mejor aplicar las migraciones como un paso separado en tu canal de despliegue.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<CountryDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseCors(Cors);
 
-// --- Swagger: IMPORTANT蚐IMO EN SUB-APP ---
+// --- Swagger: IMPORTANT锟絊IMO EN SUB-APP ---
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -57,6 +147,12 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("v1/swagger.json",       // relativo, SIN "/" inicial
                       "SirBackend v1");
 });
+// Configura el pipeline de solicitudes HTTP.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
@@ -68,4 +164,5 @@ app.AddMiddleware();
 
 app.MapControllers();
 
+// --- Ejecuta la aplicaci贸n ---
 app.Run();

@@ -16,14 +16,32 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Modules\City\City.Application\City.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\City\City.Infrastructure\City.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\City\Ciy.Domain\City.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Country\Country.Application\Country.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Country\Country.Domain\Country.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Country\Country.Infrastructure\Country.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\CourierJob\CourierJob.Application\CourierJob.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\CourierJob\CourierJob.Domain\CourierJob.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\CourierJob\CourierJob.Infrastructure\CourierJob.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Couriers\Couriers.Application\Couriers.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Couriers\Couriers.Domain\Couriers.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Couriers\Couriers.Infrastructure\Couriers.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Engineering\Engineering.Application\Engineering.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Engineering\Engineering.Domain\Engineering.Domain.csproj" />
     <ProjectReference Include="..\..\Modules\Engineering\Engineering.Infrastructure\Engineering.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Identity\Identity.Application\Identity.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Identity\Identity.Domain\Identity.Domain.csproj" />
     <ProjectReference Include="..\..\Modules\Identity\Identity.Infrastructure\Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Logistics\Logistics.Application\Logistics.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Logistics\Logistics.Infrastructure\Logistics.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\SGI\SGI.Application\SGI.Application.csproj" />
     <ProjectReference Include="..\..\Modules\SGI\SGI.Infrastructure\SGI.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\ResultCurriers\ResultCouriers.Application\ResultCouriers.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\ResultCurriers\ResultCouriers.Domain\ResultCouriers.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\ResultCurriers\ResultCouriers.Infrastructure\ResultCouriers.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

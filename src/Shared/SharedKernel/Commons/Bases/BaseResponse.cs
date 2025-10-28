@@ -1,4 +1,5 @@
-﻿namespace SharedKernel.Commons.Bases;
+﻿
+namespace SharedKernel.Commons.Bases;
 
 public class BaseResponse<T> : BaseResponseToken
 {
