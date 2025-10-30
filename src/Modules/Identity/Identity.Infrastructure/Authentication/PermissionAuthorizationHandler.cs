@@ -1,41 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 
 namespace Identity.Infrastructure.Authentication;
 
-public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+public sealed class PermissionAuthorizationHandler(IPermissionService permissionService)
+    : AuthorizationHandler<PermissionRequirement>
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IPermissionService _permissionService = permissionService;
 
-    public PermissionAuthorizationHandler(IServiceScopeFactory scopeFactory)
-    {
-        _scopeFactory = scopeFactory;
-    }
-
-    protected override async Task HandleRequirementAsync
-        (AuthorizationHandlerContext context,
+    protected override async Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-        string? userId = context.User.Claims
-            .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-
-        if (!int.TryParse(userId, out int parsedUderId))
-        {
+        // UserId desde claim (ajusta si usas otro).
+        var idClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(idClaim) || !int.TryParse(idClaim, out var userId))
             return;
-        }
 
-        using IServiceScope scope = _scopeFactory.CreateScope();
-
-        IPermissionService permissionService = scope.ServiceProvider
-            .GetRequiredService<IPermissionService>();
-
-        HashSet<string> permissions = await permissionService
-            .GetPermissionAsync(parsedUderId);
-
-        if (permissions.Contains(requirement.Permission))
-        {
+        var slugs = await _permissionService.GetEffectivePermissionSlugsAsync(userId);
+        if (slugs.Contains(requirement.Permission))
             context.Succeed(requirement);
-        }
     }
 }

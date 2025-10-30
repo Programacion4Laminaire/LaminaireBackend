@@ -25,7 +25,7 @@ public class UserMapping : IRegister
         config.NewConfig<UpdateUserPasswordByIdentityCommand, User>();
         config.NewConfig<User, SelectResponseDto>()
           .Map(dest => dest.Code, src => src.Id)
-          .Map(dest => dest.Description, src => src.FirstName + " " + src.LastName)
+          .Map(dest => dest.Description, src => src.Identification+" - "+ src.FirstName + " " + src.LastName)
           .TwoWays();
     }
 }

@@ -23,10 +23,9 @@ public static class DependencyInjection
 
         var assembly = typeof(ApplicationDbContext).Assembly.FullName;
 
-        services.AddDbContext<ApplicationDbContext>(
-            options => options
-                .UseSqlServer(configuration.GetConnectionString("IdentityConnection"),
-                              b => b.MigrationsAssembly(assembly)));
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("IdentityConnection"),
+                                 b => b.MigrationsAssembly(assembly)));
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
@@ -35,16 +34,13 @@ public static class DependencyInjection
         foreach (var impl in infraAsm.GetTypes()
                      .Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Repository")))
         {
-            var @interface = impl.GetInterfaces()
-                .FirstOrDefault(i => i.Name == "I" + impl.Name);
-            if (@interface != null)
-                services.AddScoped(@interface, impl);
+            var @interface = impl.GetInterfaces().FirstOrDefault(i => i.Name == "I" + impl.Name);
+            if (@interface != null) services.AddScoped(@interface, impl);
         }
 
-        // Repositorios/Servicios Dapper
+        // Dapper repos y servicios
         services.AddScoped<IUserCoockiesRepository, UserCoockiesRepository>();
         services.AddScoped<ILaminaireUserRepository, LaminaireUserRepository>();
-
         services.AddScoped<IUserCookieService, UserCookieService>();
 
         // Infraestructura base
@@ -52,11 +48,16 @@ public static class DependencyInjection
         services.AddTransient<IOrderingQuery, OrderingQuery>();
         services.AddScoped<IFileStorageService, FileStorageService>();
 
+        // Auth
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
-        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-        services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+        // 👇 lifetimes correctos
         services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+        // Repos usados por PermissionService / handlers
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
 

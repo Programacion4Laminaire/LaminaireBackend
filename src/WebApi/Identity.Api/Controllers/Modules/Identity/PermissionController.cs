@@ -5,19 +5,53 @@ using Identity.Application.UseCases.Permissions.Commands.UpdateCommand;
 using Identity.Application.UseCases.Permissions.Queries.GetAllQuery;
 using Identity.Application.UseCases.Permissions.Queries.GetByIdQuery;
 using Identity.Application.UseCases.Permissions.Queries.GetSelectQuery;
+using Identity.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Abstractions.Messaging;
+using SharedKernel.Commons.Bases;
+using SharedKernel.Constants;
 using SharedKernel.Dtos.Commons;
+using System.Security.Claims;
 
 namespace Identity.Api.Controllers.Modules.Identity;
 
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
-public class PermissionController(IDispatcher dispatcher) : ControllerBase
+public class PermissionController : ControllerBase
 {
-    private readonly IDispatcher _dispatcher = dispatcher;
+    private readonly IDispatcher _dispatcher;
+    private readonly IPermissionService _permissionService;
+
+    public PermissionController(
+        IDispatcher dispatcher,
+        IPermissionService permissionService)
+    {
+        _dispatcher = dispatcher;
+        _permissionService = permissionService;
+    }
+
+    // ================== NUEVO ==================
+    /// <summary>Devuelve los slugs efectivos (Role ± UserPermission) del usuario autenticado.</summary>
+    [HttpGet("Mine")]
+    public async Task<IActionResult> Mine(CancellationToken ct)
+    {
+        var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(idClaim) || !int.TryParse(idClaim, out var userId))
+            return Unauthorized();
+
+        var data = await _permissionService.GetEffectivePermissionSlugsAsync(userId, ct);
+
+        var resp = new BaseResponse<IEnumerable<string>>
+        {
+            IsSuccess = true,
+            Message = GlobalMessages.MESSAGE_QUERY,
+            Data = data
+        };
+        return Ok(resp);
+    }
+    // ===========================================
 
     // ======= EXISTENTE =======
     [HttpGet("PermissionByRoleId/{roleId:int}")]
@@ -30,7 +64,6 @@ public class PermissionController(IDispatcher dispatcher) : ControllerBase
     }
 
     // ======= CRUD =======
-
     [HttpGet]
     public async Task<IActionResult> PermissionList([FromQuery] GetAllPermissionQuery query)
     {
