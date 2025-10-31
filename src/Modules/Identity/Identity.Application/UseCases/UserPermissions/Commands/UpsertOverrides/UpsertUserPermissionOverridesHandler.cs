@@ -1,59 +1,58 @@
-﻿using Identity.Application.Interfaces.Services;
+﻿using Identity.Application.Dtos.UserPermissions;
+using Identity.Application.Interfaces.Services;
+using Identity.Application.Interfaces.RealTime; // 👈
 using Identity.Domain.Entities;
 using SharedKernel.Abstractions.Messaging;
 using SharedKernel.Commons.Bases;
 using SharedKernel.Constants;
 
-namespace Identity.Application.UseCases.UserPermissions.Commands.UpsertOverrides
+namespace Identity.Application.UseCases.UserPermissions.Commands.UpsertOverrides;
+
+public sealed class UpsertUserPermissionOverridesHandler(IUnitOfWork uow, IPermissionsNotifier notifier)
+    : ICommandHandler<UpsertUserPermissionOverridesCommand, bool>
 {
-    public sealed class UpsertUserPermissionOverridesHandler : ICommandHandler<UpsertUserPermissionOverridesCommand, bool>
+    private readonly IUnitOfWork _uow = uow;
+    private readonly IPermissionsNotifier _notifier = notifier;
+
+    public async Task<BaseResponse<bool>> Handle(UpsertUserPermissionOverridesCommand request, CancellationToken cancellationToken)
     {
-        private readonly IUnitOfWork _uow;
+        var response = new BaseResponse<bool>();
 
-        public UpsertUserPermissionOverridesHandler(IUnitOfWork uow)
+        try
         {
-            _uow = uow;
-        }
+            var userId = request.Request.UserId;
 
-        public async Task<BaseResponse<bool>> Handle(
-            UpsertUserPermissionOverridesCommand request,
-            CancellationToken cancellationToken)
-        {
-            var response = new BaseResponse<bool>();
+            var now = DateTime.Now;
+            var currentUserId = 1;
 
-            try
+            var entities = request.Request.Overrides.Select(o => new UserPermission
             {
-                var userId = request.Request.UserId;
+                UserId = userId,
+                PermissionId = o.PermissionId,
+                IsGranted = o.IsGranted,
+                State = "1",
+                AuditCreateUser = currentUserId,
+                AuditCreateDate = now
+            });
 
-                // Construye los overrides EXACTAMENTE como vienen de la UI (isGranted = estado del check).
-                var now = DateTime.Now;
-                var currentUserId = 1; // TODO: reemplazar por el usuario autenticado si lo tienes disponible
+            var ok = await _uow.UserPermission.ReplaceOverridesAsync(userId, entities);
 
-                var entities = request.Request.Overrides.Select(o => new UserPermission
-                {
-                    UserId = userId,
-                    PermissionId = o.PermissionId,
-                    IsGranted = o.IsGranted,   // <- true/false según lo marcado
-                    State = "1",
-                    AuditCreateUser = currentUserId,
-                    AuditCreateDate = now
-                });
-
-                var ok = await _uow.UserPermission.ReplaceOverridesAsync(userId, entities);
-
-                response.IsSuccess = ok;
-                response.Data = ok;
-                response.Message = ok
-                    ? GlobalMessages.MESSAGE_TRANSACTION
-                    : "No fue posible registrar los permisos del usuario.";
-            }
-            catch (Exception ex)
+            if (ok)
             {
-                response.IsSuccess = false;
-                response.Message = ex.Message;
+                // 🔔 Notificar sin acoplar a SignalR ni a la capa Api
+                await _notifier.NotifyUserPermissionsChangedAsync(userId, cancellationToken);
             }
 
-            return response;
+            response.IsSuccess = ok;
+            response.Data = ok;
+            response.Message = ok ? GlobalMessages.MESSAGE_TRANSACTION : "No fue posible registrar los permisos del usuario.";
         }
+        catch (Exception ex)
+        {
+            response.IsSuccess = false;
+            response.Message = ex.Message;
+        }
+
+        return response;
     }
 }

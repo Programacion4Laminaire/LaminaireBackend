@@ -5,10 +5,11 @@ using Identity.Api.Middleware;
 using Identity.Api.Services;
 using Identity.Application;
 using Identity.Infrastructure;
-using SGI.Application;
-using SGI.Infrastructure;
+using Identity.Infrastructure.RealTime;
 using Logistics.Application;
 using Logistics.Infrastructure;
+using SGI.Application;
+using SGI.Infrastructure;
 using SharedKernel.Abstractions.Services;
 using System.Text.Json.Serialization;
 
@@ -67,5 +68,5 @@ app.UseAuthorization();
 app.AddMiddleware();
 
 app.MapControllers();
-
+app.MapHub<PermissionsHub>("/hubs/permissions");
 app.Run();

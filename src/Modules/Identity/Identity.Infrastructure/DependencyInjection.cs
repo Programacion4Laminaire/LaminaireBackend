@@ -1,9 +1,11 @@
 ﻿using Identity.Application.Interfaces.Authentication;
 using Identity.Application.Interfaces.Persistence;
+using Identity.Application.Interfaces.RealTime;
 using Identity.Application.Interfaces.Services;
 using Identity.Infrastructure.Authentication;
 using Identity.Infrastructure.Persistence.Context;
 using Identity.Infrastructure.Persistence.Repositories;
+using Identity.Infrastructure.RealTime;
 using Identity.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +62,12 @@ public static class DependencyInjection
         // Repos usados por PermissionService / handlers
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
+
+        // SignalR
+        services.AddSignalR();
+
+        // Notificador de permisos
+        services.AddScoped<IPermissionsNotifier, PermissionsNotifier>();
 
         return services;
     }
