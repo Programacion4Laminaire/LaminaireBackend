@@ -1,81 +1,83 @@
-﻿using Identity.Application.Interfaces.Persistence;
+﻿// Identity.Infrastructure/Persistence/Repositories/MenuRepository.cs
+using Identity.Application.Interfaces.Persistence;
 using Identity.Domain.Entities;
 using Identity.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Abstractions.Services;
 
-namespace Identity.Infrastructure.Persistence.Repositories;
-
-public class MenuRepository(ApplicationDbContext context) : IMenuRepository
+namespace Identity.Infrastructure.Persistence.Repositories
 {
-    private readonly ApplicationDbContext _context = context;
-
-    public async Task<bool> DeleteMenuRole(List<MenuRole> menuRoles)
+    public class MenuRepository : GenericRepository<Menu>, IMenuRepository
     {
-        _context.MenuRoles.RemoveRange(menuRoles);
-        var recordsAffected = await _context.SaveChangesAsync();
-        return recordsAffected > 0;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly ICurrentUserService _currentUser;
 
-    public async Task<IEnumerable<Menu>> GetMenuByUserIdAsync(int userId)
-    {
-        var userRole = await _context.UserRoles.FirstOrDefaultAsync(x => x.UserId == userId);
+        public MenuRepository(ApplicationDbContext context, ICurrentUserService currentUser)
+            : base(context, currentUser)
+        {
+            _context = context;
+            _currentUser = currentUser;
+        }
 
-        var menus = await _context.Menus
-            .AsNoTracking()
-            .AsSplitQuery()
-            .Join(_context.MenuRoles, m => m.Id, mr => mr.MenuId, (m, mr) => new { Menu = m, MenuRole = mr })
-            .Where(x => x.MenuRole.RoleId == userRole!.RoleId && x.Menu.State == "1")
-            .Select(x => x.Menu)
-            .OrderBy(x => x.Position)
-            .ToListAsync();
+        public async Task<bool> DeleteMenuRole(List<MenuRole> menuRoles)
+        {
+            _context.MenuRoles.RemoveRange(menuRoles);
+            var recordsAffected = await _context.SaveChangesAsync();
+            return recordsAffected > 0;
+        }
 
-        return menus;
-    }
+        public async Task<IEnumerable<Menu>> GetMenuByUserIdAsync(int userId)
+        {
+            var userRole = await _context.UserRoles.FirstOrDefaultAsync(x => x.UserId == userId);
 
-    public async Task<IEnumerable<Menu>> GetMenuPermissionByRoleIdAsync(int? roleId)
-    {
-        var query = _context.Menus
+            var menus = await _context.Menus
                 .AsNoTracking()
                 .AsSplitQuery()
-                .Where(m => m.Url != null && m.State == "1");
+                .Join(_context.MenuRoles, m => m.Id, mr => mr.MenuId, (m, mr) => new { Menu = m, MenuRole = mr })
+                .Where(x => x.MenuRole.RoleId == userRole!.RoleId && x.Menu.State == "1")
+                .Select(x => x.Menu)
+                .OrderBy(x => x.Position)
+                .ToListAsync();
 
-        //if (roleId != 0)
-        //{
-        //    var menus = await query
-        //        .Join(_context.MenuRoles, m => m.Id, mr => mr.MenuId, (m, mr) => new { Menu = m, MenuRole = mr })
-        //        .Where(x => x.MenuRole.RoleId == roleId)
-        //        .Select(x => x.Menu)
-        //        .ToListAsync();
+            return menus;
+        }
 
-        //    return menus;
-        //}
-        //else
-        //{
-        var menus = await query.ToListAsync();
-        return menus;
-        //}
-    }
+        // IMenuRepository / MenuRepository
+        public async Task<IEnumerable<Menu>> GetMenuPermissionByRoleIdAsync(int? roleId)
+        {
+            var query = _context.Menus
+                .AsNoTracking()
+                .AsSplitQuery()             
+                .Where(m => m.State == "1");
 
-    public async Task<List<MenuRole>> GetMenuRolesByRoleId(int roleId)
-    {
-        return await _context.MenuRoles
+            return await query.ToListAsync();
+        }
+
+
+
+        public async Task<List<MenuRole>> GetMenuRolesByRoleId(int roleId)
+        {
+            return await _context.MenuRoles
                 .AsNoTracking()
                 .Where(pr => pr.RoleId == roleId)
                 .ToListAsync();
-    }
-
-    public async Task<bool> RegisterRoleMenus(IEnumerable<MenuRole> menuRoles)
-    {
-        foreach (var menuRole in menuRoles)
-        {
-            menuRole.AuditCreateUser = 1;
-            menuRole.AuditCreateDate = DateTime.Now;
-            menuRole.State = "1";
-
-            _context.MenuRoles.Add(menuRole);
         }
 
-        var recordsAffected = await _context.SaveChangesAsync();
-        return recordsAffected > 0;
+        public async Task<bool> RegisterRoleMenus(IEnumerable<MenuRole> menuRoles)
+        {
+            var now = DateTime.UtcNow;
+            var uid = _currentUser.UserId ?? 1;
+
+            foreach (var mr in menuRoles)
+            {
+                mr.AuditCreateUser = uid;
+                mr.AuditCreateDate = now;
+                mr.State = "1";
+                _context.MenuRoles.Add(mr);
+            }
+
+            var recordsAffected = await _context.SaveChangesAsync();
+            return recordsAffected > 0;
+        }
     }
 }

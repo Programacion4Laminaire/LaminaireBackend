@@ -2,10 +2,6 @@
 
 namespace Identity.Infrastructure.Authentication;
 
-public sealed class HasPermissionAttribute : AuthorizeAttribute
-{
-    public HasPermissionAttribute(Permission permission) : base(policy: permission.ToString()!)
-    {
-
-    }
-}
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
+public sealed class HasPermissionAttribute(string permissionSlug)
+    : AuthorizeAttribute($"{PermissionAuthorizationPolicyProvider.PolicyPrefix}{permissionSlug}");

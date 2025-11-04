@@ -3,23 +3,22 @@ using Microsoft.Extensions.Options;
 
 namespace Identity.Infrastructure.Authentication;
 
-public class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
+/// Crea dinámicamente políticas "Permission:<slug>"
+public sealed class PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
+    : DefaultAuthorizationPolicyProvider(options)
 {
-    public PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options) : base(options)
-    {
-    }
+    public const string PolicyPrefix = "Permission:";
 
     public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
-        AuthorizationPolicy? policy = await base.GetPolicyAsync(policyName);
-
-        if (policy is not null)
+        if (policyName.StartsWith(PolicyPrefix, StringComparison.OrdinalIgnoreCase))
         {
-            return policy;
+            var permission = policyName.Substring(PolicyPrefix.Length);
+            var builder = new AuthorizationPolicyBuilder();
+            builder.AddRequirements(new PermissionRequirement(permission));
+            return await Task.FromResult(builder.Build());
         }
 
-        return new AuthorizationPolicyBuilder()
-            .AddRequirements(new PermissionRequirement(policyName))
-            .Build();
+        return await base.GetPolicyAsync(policyName);
     }
 }

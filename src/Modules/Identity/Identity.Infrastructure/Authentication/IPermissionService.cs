@@ -2,5 +2,6 @@
 
 public interface IPermissionService
 {
-    Task<HashSet<string>> GetPermissionAsync(int userId);
+    /// Devuelve el conjunto de slugs efectivos del usuario (Role ± UserPermission overrides).
+    Task<HashSet<string>> GetEffectivePermissionSlugsAsync(int userId, CancellationToken ct = default);
 }

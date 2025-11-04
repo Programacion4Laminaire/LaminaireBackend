@@ -3,47 +3,46 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Infrastructure.Authentication;
 
-public class PermissionService : IPermissionService
+public sealed class PermissionService(ApplicationDbContext db) : IPermissionService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _db = db;
 
-    public PermissionService(ApplicationDbContext context)
+    public async Task<HashSet<string>> GetEffectivePermissionSlugsAsync(int userId, CancellationToken ct = default)
     {
-        _context = context;
-    }
+        // 1) permisos por rol
+        var roleId = await _db.UserRoles
+            .Where(ur => ur.UserId == userId)
+            .Select(ur => (int?)ur.RoleId)
+            .FirstOrDefaultAsync(ct);
 
-    public async Task<HashSet<string>> GetPermissionAsync(int userId)
-    {
-        //var permissions = await _context.Users
-        //.Where(u => u.Id == userId)
-        //.Join(
-        //    _context.Roles,
-        //    u => u.Id,
-        //    r => r.Id,
-        //    (u, r) => new { Role = r }
-        //)
-        //.Join(
-        //    _context.RolePermissions,
-        //    ur => ur.Role.Id,
-        //    rp => rp.RoleId,
-        //    (ur, rp) => new { RolePermission = rp }
-        //)
-        //.Join(
-        //    _context.Permissions,
-        //    urp => urp.RolePermission.PermissionId,
-        //    p => p.Id,
-        //    (urp, p) => p.Name
-        //)
-        //.ToListAsync();
+        var roleSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (roleId is not null)
+        {
+            var rslugs = await _db.RolePermissions
+                .AsNoTracking()
+                .Where(rp => rp.RoleId == roleId && rp.State == "1")
+                .Join(_db.Permissions,
+                      rp => rp.PermissionId,
+                      p => p.Id,
+                      (rp, p) => p.Slug)
+                .ToListAsync(ct);
+            roleSlugs = new HashSet<string>(rslugs, StringComparer.OrdinalIgnoreCase);
+        }
 
-        var permissions = await _context.UserRoles
-                .Where(ur => ur.UserId == userId)
-                .SelectMany(ur => _context.RolePermissions
-                .Where(rp => rp.RoleId == ur.RoleId)
-                .Select(rp => rp.Permission.Name)
-        )
-        .ToListAsync();
+        // 2) overrides de usuario
+        var overrides = await _db.UserPermissions
+            .AsNoTracking()
+            .Where(up => up.UserId == userId)
+            .Join(_db.Permissions, up => up.PermissionId, p => p.Id, (up, p) => new { up.IsGranted, p.Slug })
+            .ToListAsync(ct);
 
-        return new HashSet<string>(permissions);
+        // 3) aplicar overrides sobre el baseline del rol
+        foreach (var o in overrides)
+        {
+            if (o.IsGranted) roleSlugs.Add(o.Slug);
+            else roleSlugs.Remove(o.Slug);
+        }
+
+        return roleSlugs;
     }
 }

@@ -6,6 +6,7 @@ using Identity.Application.UseCases.Users.Queries.GetAllQuery;
 using Identity.Application.UseCases.Users.Queries.GetByIdQuery;
 using Identity.Application.UseCases.Users.Queries.GetSelectQuery;
 using Identity.Application.UseCases.Users.Queries.UserRolePermissionsQuery;
+using Identity.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Abstractions.Messaging;
@@ -20,6 +21,7 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
     private readonly IDispatcher _dispatcher = dispatcher;
 
     [HttpGet]
+    [HasPermission("users.view")]
     public async Task<IActionResult> UserList([FromQuery] GetAllUserQuery query)
     {
         var response = await _dispatcher.Dispatch<GetAllUserQuery, IEnumerable<UserResponseDto>>
@@ -54,6 +56,7 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
     }
 
     [HttpPost("Create")]
+    [HasPermission("users.create")]
     public async Task<IActionResult> UserCreate([FromBody] CreateUserCommand command)
     {
         var response = await _dispatcher.Dispatch<CreateUserCommand, bool>
@@ -63,6 +66,7 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
 
     [HttpPost("CreateWithImage")]
     [Consumes("multipart/form-data")]
+    [HasPermission("users.create")]
     public async Task<IActionResult> CreateWithImage([FromForm] CreateUserWithImageCommand command)
     {
         var response = await _dispatcher.Dispatch<CreateUserWithImageCommand, bool>(command, CancellationToken.None);
@@ -78,6 +82,7 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
 
 
     [HttpPut("Update")]
+    [HasPermission("users.update")]
     public async Task<IActionResult> UserUpdate([FromBody] UpdateUserCommand command)
     {
         var response = await _dispatcher.Dispatch<UpdateUserCommand, bool>
@@ -86,6 +91,7 @@ public class UserController(IDispatcher dispatcher) : ControllerBase
     }
 
     [HttpPut("Delete/{userId:int}")]
+    [HasPermission("users.delete")]
     public async Task<IActionResult> UserDelete(int userId)
     {
         var response = await _dispatcher.Dispatch<DeleteUserCommand, bool>
