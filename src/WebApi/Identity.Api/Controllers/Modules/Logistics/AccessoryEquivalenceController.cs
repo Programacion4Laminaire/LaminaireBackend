@@ -8,12 +8,14 @@ using Logistics.Application.UseCases.AccessoryEquivalence.Queries.ExportQuery;
 using Logistics.Application.UseCases.AccessoryEquivalence.Queries.GetDescripcionQuery;
 using Logistics.Application.UseCases.AccessoryEquivalence.Queries.GetPagedQuery;
 using Logistics.Application.UseCases.AccessoryEquivalence.Queries.SelectQuery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Abstractions.Messaging;
 using SharedKernel.Dtos.Commons;
 
 namespace Identity.Api.Controllers.Modules.Logistics
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AccessoryEquivalenceController(IDispatcher dispatcher) : ControllerBase
@@ -92,7 +94,7 @@ namespace Identity.Api.Controllers.Modules.Logistics
 
         /// <summary>Autocomplete a MTMERCIA. kind: PT | MP (opcional).</summary>
         [HttpGet("Select")]
-        [HasPermission("accessoryequivalence.search")]
+       
         public async Task<IActionResult> GetSelect([FromQuery] string? searchTerm, [FromQuery] string? kind, CancellationToken ct)
         {
             var result = await _dispatcher.Dispatch<GetMerciaSelectQuery, IEnumerable<SelectResponseDto>>(
