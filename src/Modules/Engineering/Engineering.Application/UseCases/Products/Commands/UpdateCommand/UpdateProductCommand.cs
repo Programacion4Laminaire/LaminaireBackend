@@ -9,6 +9,6 @@ public class UpdateProductCommand : ICommand<bool>
     public decimal Cost { get; set; }
     public decimal Multiplier { get; set; }
     public decimal DistributorMultiplier { get; set; }
-    public decimal Margin { get; init; }
+    public decimal Margin { get; init; }           // fracción (0.55–0.70)
     public decimal BasePriceUsd { get; set; }
 }

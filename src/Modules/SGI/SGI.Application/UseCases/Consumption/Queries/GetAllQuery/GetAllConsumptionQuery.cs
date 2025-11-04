@@ -14,5 +14,5 @@ public class GetAllConsumptionQuery : BaseFilters, IQuery<IEnumerable<Consumptio
     public DateTime? EndReadingDate { get; set; }
 
     // 🔎 Texto libre (ej: buscar en Note)
-    public string? TextFilter { get; set; }
+    //public string? TextFilter { get; set; }
 }
