@@ -8,14 +8,15 @@ public sealed class PermissionsNotifier(IHubContext<PermissionsHub> hub) : IPerm
     private readonly IHubContext<PermissionsHub> _hub = hub;
 
     public Task NotifyUserPermissionsChangedAsync(int userId, CancellationToken ct = default)
-        => _hub.Clients.Group($"user:{userId}").SendAsync("PermissionsChanged", cancellationToken: ct);
+        => _hub.Clients.Group($"user:{userId}")
+            .SendAsync("PermissionsChanged", cancellationToken: ct);
 
     public Task NotifyUsersPermissionsChangedAsync(IEnumerable<int> userIds, CancellationToken ct = default)
     {
-        // Enviamos a todos los grupos user:{id}
         var tasks = userIds
             .Distinct()
-            .Select(id => _hub.Clients.Group($"user:{id}").SendAsync("PermissionsChanged", cancellationToken: ct));
+            .Select(id => _hub.Clients.Group($"user:{id}")
+                .SendAsync("PermissionsChanged", cancellationToken: ct));
         return Task.WhenAll(tasks);
     }
 }

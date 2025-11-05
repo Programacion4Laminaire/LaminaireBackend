@@ -7,9 +7,14 @@ namespace Identity.Infrastructure.RealTime;
 [Authorize]
 public sealed class PermissionsHub : Hub
 {
+    private static string? GetUserId(ClaimsPrincipal? user)
+        => user?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+           ?? user?.FindFirst("sub")?.Value
+           ?? user?.FindFirst("uid")?.Value;
+
     public override async Task OnConnectedAsync()
     {
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = GetUserId(Context.User);
         if (!string.IsNullOrWhiteSpace(userId))
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, $"user:{userId}");
@@ -19,7 +24,7 @@ public sealed class PermissionsHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = GetUserId(Context.User);
         if (!string.IsNullOrWhiteSpace(userId))
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user:{userId}");
