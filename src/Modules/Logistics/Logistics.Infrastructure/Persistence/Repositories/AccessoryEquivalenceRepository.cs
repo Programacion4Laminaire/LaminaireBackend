@@ -182,35 +182,45 @@ WHERE CODIGO = @Codigo;";
 
     public async Task<IEnumerable<SelectResponseDto>> GetMerciaSelectAsync(string? searchTerm, string? kind)
     {
-        var p = new DynamicParameters();
-        p.Add("@SearchTerm", string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm.Trim());
-        p.Add("@Kind", string.IsNullOrWhiteSpace(kind) ? null : kind.Trim().ToUpper());
+        // Normalizamos: dígitos para el match por código y término libre para descripción
+        var termRaw = (searchTerm ?? string.Empty).Trim();
+        var termCode = new string(termRaw.Where(char.IsDigit).ToArray()); // para CODIGO (prefijo)
+        var termText = $"%{termRaw}%";                                   // para DESCRIPCIO (contains)
+        var kindUp = string.IsNullOrWhiteSpace(kind) ? null : kind.Trim().ToUpperInvariant();
 
+        var p = new DynamicParameters();
+        p.Add("@TermCode", termCode);
+        p.Add("@TermText", termText);
+        p.Add("@Kind", kindUp);
+
+        // Nota: evitamos TRY_CONVERT(BIGINT) por overflow; usamos patrón de "solo dígitos".
         var sql = @"
-SELECT TOP 20
-    LTRIM(RTRIM(CODIGO))      AS [Code],
-    LTRIM(RTRIM(DESCRIPCIO))  AS [Description]
-FROM CILAMINAIRE..MTMERCIA
-WHERE 
+SELECT TOP (20)
+    LTRIM(RTRIM(CODIGO))     AS [Code],
+    LTRIM(RTRIM(DESCRIPCIO)) AS [Description]
+FROM CILAMINAIRE..MTMERCIA WITH (NOLOCK)
+WHERE
     (
-        @SearchTerm IS NULL
-        OR CODIGO LIKE '%' + @SearchTerm + '%'
-        OR DESCRIPCIO LIKE '%' + @SearchTerm + '%'
+        -- Si hay término numérico, hacemos prefijo por código
+        (@TermCode <> '' AND CODIGO LIKE @TermCode + '%')
+        OR
+        -- También permitimos búsqueda por descripción si escribió letras
+        (@TermCode = '' AND @TermText <> '%%' AND DESCRIPCIO LIKE @TermText)
     )
     AND (
         @Kind IS NULL
         OR (
             @Kind = 'PT'
             AND LEN(RTRIM(CODIGO)) >= 15
-            AND TRY_CONVERT(BIGINT, RTRIM(CODIGO)) IS NOT NULL
+            AND RTRIM(CODIGO) NOT LIKE '%[^0-9]%'   -- solo dígitos (sin overflow)
         )
         OR (
             @Kind = 'MP'
             AND LEN(RTRIM(CODIGO)) = 5
-            AND TRY_CONVERT(INT, RTRIM(CODIGO)) IS NOT NULL
+            AND RTRIM(CODIGO) NOT LIKE '%[^0-9]%'
         )
     )
-ORDER BY DESCRIPCIO;";
+ORDER BY CODIGO;";
 
         using var cn = _context.CreateConnection;
         var items = await cn.QueryAsync<SelectResponseDto>(sql, p);

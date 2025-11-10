@@ -121,6 +121,7 @@ namespace Identity.Api.Controllers.Modules.Logistics
 
             var result = await _dispatcher.Dispatch<ExportEquivalenceQuery, Stream>(query, ct);
 
+
             if (!(result.IsSuccess ?? false) || result.Data == null)
                 return BadRequest(new { message = result.Message });
 
