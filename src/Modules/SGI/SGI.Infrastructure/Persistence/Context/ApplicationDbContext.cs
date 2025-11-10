@@ -11,7 +11,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     private readonly IConfiguration _configuration = configuration;
 
-    public DbSet<Consumption> Users { get; set; } = null!;
+    public DbSet<Consumption> Consumptions { get; set; } = null!;
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -12,7 +12,7 @@ public class EngineeringDbContext
     public EngineeringDbContext(IConfiguration configuration)
     {
         _configuration = configuration;
-        _connectionString = _configuration.GetConnectionString("ReqLaminaireConnection")!;
+        _connectionString = _configuration.GetConnectionString("EngineeringConnection")!;
     }
 
     public IDbConnection CreateConnection => new SqlConnection(_connectionString);

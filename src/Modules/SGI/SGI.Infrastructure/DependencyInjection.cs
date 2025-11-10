@@ -22,7 +22,7 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(
             options => options
-                .UseSqlServer(configuration.GetConnectionString("IdentityConnection"),
+                .UseSqlServer(configuration.GetConnectionString("SGIConnection"),
                               b => b.MigrationsAssembly(assembly)));
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

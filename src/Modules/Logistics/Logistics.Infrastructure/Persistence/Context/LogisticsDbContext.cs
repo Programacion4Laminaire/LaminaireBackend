@@ -12,7 +12,7 @@ namespace Logistics.Infrastructure.Persistence.Context
         public LogisticsDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("LogisticsLaminaireConnection")!;
+            _connectionString = _configuration.GetConnectionString("LogisticsConnection")!;
         }
 
         public IDbConnection CreateConnection => new SqlConnection(_connectionString);
