@@ -8,6 +8,8 @@ using Identity.Infrastructure;
 using Identity.Infrastructure.RealTime;
 using Logistics.Application;
 using Logistics.Infrastructure;
+using Production.Application;
+using Production.Infrastructure;
 using SGI.Application;
 using SGI.Infrastructure;
 using SharedKernel.Abstractions.Services;
@@ -25,6 +27,8 @@ builder.Services
     .AddInfrastructureSGI(builder.Configuration)
     .AddInfrastructureLogistics(builder.Configuration)
     .AddApplicationLogistics()
+    .AddApplicationProduction()
+    .AddInfrastructureProduction(builder.Configuration)
     .AddAuthentication(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();

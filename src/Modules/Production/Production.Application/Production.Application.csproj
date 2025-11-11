@@ -7,10 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\" />
-    <Folder Include="Interfaces\" />
     <Folder Include="Mappings\" />
-    <Folder Include="UseCases\" />
+    <Folder Include="UseCases\ReprogramLines\Commands\" />
   </ItemGroup>
 
   <ItemGroup>
