@@ -60,7 +60,7 @@ namespace Identity.Api.Controllers.Modules.Logistics
 
         /// <summary>Consulta la descripción por código en MTMERCIA.</summary>
         [HttpGet("Descripcion/{codigo}")]
-        [HasPermission("accessoryequivalence.search")]
+       
         public async Task<IActionResult> GetDescripcion(string codigo, CancellationToken ct)
         {
             var result = await _dispatcher.Dispatch<GetDescripcionQuery, string>(
