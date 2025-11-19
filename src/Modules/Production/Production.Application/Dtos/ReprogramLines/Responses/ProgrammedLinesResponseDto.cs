@@ -11,6 +11,5 @@ public class ProgrammedLinesResponseDto
     public string? Line { get; set; }
     public string? Usp { get; set; }
     public string? Date { get; set; }
-    public string? Time { get; set; }
     public string? UserCode { get; set; }
 }
