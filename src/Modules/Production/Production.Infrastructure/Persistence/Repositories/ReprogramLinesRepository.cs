@@ -70,6 +70,7 @@ public class ReprogramLinesRepository(ProductionDbContext context) : IReprogramL
     {
         ArgumentNullException.ThrowIfNull(programmedLines);
         using var connection = _context.CreateConnection;
+        connection.Open();
         using var transaction = connection.BeginTransaction();
 
         try
@@ -100,6 +101,10 @@ public class ReprogramLinesRepository(ProductionDbContext context) : IReprogramL
         {
             transaction.Rollback();
             throw;
+        }
+        finally {
+
+            connection.Close();
         }
     }
 
