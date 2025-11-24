@@ -9,10 +9,12 @@ namespace Engineering.Infrastructure.Services;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly EngineeringDbContext _context;
-    private IProductRepository _product;
 
-    private IDbConnection _connection;
-    private IDbTransaction _transaction;
+    private IProductRepository? _product;
+    private ILogMovementRepository? _logMovement;
+
+    private readonly IDbConnection _connection;
+    private IDbTransaction? _transaction;
 
     public UnitOfWork(EngineeringDbContext context)
     {
@@ -20,7 +22,11 @@ public class UnitOfWork : IUnitOfWork
         _connection = _context.CreateConnection;
     }
 
-    public IProductRepository Product => _product ??= new ProductRepository(_context);
+    public IProductRepository Product
+        => _product ??= new ProductRepository(_context);
+
+    public ILogMovementRepository LogMovement
+        => _logMovement ??= new LogMovementRepository(_context);
 
     public IDbTransaction BeginTransaction()
     {

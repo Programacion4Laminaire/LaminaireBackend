@@ -41,7 +41,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy(Cors, p =>
-        p.AllowAnyOrigin()        // <-- WithOrigins("*") no es válido
+        p.AllowAnyOrigin()      
          .AllowAnyHeader()
          .AllowAnyMethod());
 });
@@ -50,12 +50,12 @@ var app = builder.Build();
 
 app.UseCors(Cors);
 
-// --- Swagger: IMPORTANTÍSIMO EN SUB-APP ---
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.RoutePrefix = "swagger";                 // UI en /SirBackend/swagger
-    c.SwaggerEndpoint("v1/swagger.json",       // relativo, SIN "/" inicial
+    c.RoutePrefix = "swagger";               
+    c.SwaggerEndpoint("v1/swagger.json",       
                       "SirBackend v1");
 });
 
