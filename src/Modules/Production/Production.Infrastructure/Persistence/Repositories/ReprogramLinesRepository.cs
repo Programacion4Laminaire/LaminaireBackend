@@ -85,7 +85,7 @@ public class ReprogramLinesRepository(ProductionDbContext context) : IReprogramL
             spParams.Add("@pCodigo", programmedLines.ProductCode);
             spParams.Add("@pUsuario", programmedLines.UserCode);
 
-            await connection.ExecuteAsync("SPX_PROGRAMAR_LOTE", spParams, commandType: CommandType.StoredProcedure, transaction: transaction);
+            await connection.ExecuteAsync("SPX_PROGRAMAR_LOTE", spParams, commandType: CommandType.StoredProcedure, transaction: transaction, commandTimeout: 300);
 
             transaction.Commit();
 
