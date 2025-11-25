@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Identity.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Production.Application.Dtos.ReprogramLines.Responses;
 using Production.Application.UseCases.ReprogramLines.Commands;
 using Production.Application.UseCases.ReprogramLines.Queries;
@@ -16,8 +17,8 @@ public class ReprogramLinesController(IDispatcher dispatcher) : Controller
 {
     private readonly IDispatcher _dispatcher = dispatcher;
 
-    [HttpGet("/ProgrammedLinesByOrderAndProduct/{orderNumber}/{productCode}")]
-    //[HasPermission("accessoryequivalence.view")]
+    [HttpGet("ProgrammedLinesByOrderAndProduct/{orderNumber}/{productCode}")]
+    [HasPermission("reprogramlines.view")]
     public async Task<IActionResult> GetProgrammedLinesByOrderAndProduct(string orderNumber, string productCode,
     CancellationToken ct)
     {
@@ -30,8 +31,8 @@ public class ReprogramLinesController(IDispatcher dispatcher) : Controller
         return Ok(result);
     }
 
-    [HttpGet("/ProgrammedLinesByOrder/{orderNumber}")]
-    //[HasPermission("accessoryequivalence.view")]
+    [HttpGet("ProgrammedLinesByOrder/{orderNumber}")]
+    [HasPermission("reprogramlines.view")]
     public async Task<IActionResult> GetProgrammedLinesByOrder(string orderNumber,CancellationToken ct)
     {
         var result = await _dispatcher.Dispatch<GetByOrderAndProductQuery, IEnumerable<ProgrammedLinesResponseDto>>(
@@ -42,8 +43,8 @@ public class ReprogramLinesController(IDispatcher dispatcher) : Controller
         return Ok(result);
     }
 
-    [HttpGet("/OrderProductsByOrder/{orderNumber}")]
-    //[HasPermission("accessoryequivalence.view")]
+    [HttpGet("OrderProductsByOrder/{orderNumber}")]
+    [HasPermission("reprogramlines.view")]
     public async Task<IActionResult> GetOrderProductsByOrder(string orderNumber, CancellationToken ct)
     {
         var result = await _dispatcher.Dispatch<GetOrderProductsByOrderQuery, IEnumerable<OrderProductsResponseDto>>(
@@ -54,8 +55,8 @@ public class ReprogramLinesController(IDispatcher dispatcher) : Controller
         return Ok(result);
     }
 
-    [HttpGet ("/ValidateOrderExistence/{OrderNumber}")]
-    //[HasPermission("accessoryequivalence.view")]
+    [HttpGet ("ValidateOrderExistence/{OrderNumber}")]
+    [HasPermission("reprogramlines.view")]
     public async Task<IActionResult> ValidateOrderExistence(string OrderNumber, CancellationToken ct)
     {
         var result = await _dispatcher.Dispatch<ValidateOrderExistenceQuery, string>(
@@ -69,8 +70,8 @@ public class ReprogramLinesController(IDispatcher dispatcher) : Controller
 
 
 
-    [HttpPut("/UpdateProgrammedLinesByOrderAndProduct")]
-    //[HasPermission("accessoryequivalence.edit")]
+    [HttpPut("UpdateProgrammedLinesByOrderAndProduct")]
+    [HasPermission("accessoryequivalence.edit")]
     public async Task<IActionResult> UpdateProgrammedLinesByOrderAndProduct([FromBody] UpdateProgrammedLinesCommand request, CancellationToken ct)
     {
         var result = await _dispatcher.Dispatch<UpdateProgrammedLinesCommand, IEnumerable<ProgrammedLinesResponseDto>>(
