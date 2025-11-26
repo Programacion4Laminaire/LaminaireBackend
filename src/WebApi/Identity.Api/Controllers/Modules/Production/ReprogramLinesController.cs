@@ -1,4 +1,5 @@
 ﻿using Identity.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Application.Dtos.ReprogramLines.Responses;
 using Production.Application.UseCases.ReprogramLines.Commands;
@@ -10,7 +11,7 @@ using SharedKernel.Abstractions.Messaging;
 namespace Identity.Api.Controllers.Modules.Production;
 
 
-//[Authorize]
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ReprogramLinesController(IDispatcher dispatcher) : Controller
@@ -71,7 +72,7 @@ public class ReprogramLinesController(IDispatcher dispatcher) : Controller
 
 
     [HttpPut("UpdateProgrammedLinesByOrderAndProduct")]
-    [HasPermission("accessoryequivalence.edit")]
+    [HasPermission("reprogramlines.update")]
     public async Task<IActionResult> UpdateProgrammedLinesByOrderAndProduct([FromBody] UpdateProgrammedLinesCommand request, CancellationToken ct)
     {
         var result = await _dispatcher.Dispatch<UpdateProgrammedLinesCommand, IEnumerable<ProgrammedLinesResponseDto>>(
